@@ -72,3 +72,21 @@ export type Visitors<S = unknown> = {
   enter?: VisitFn<Node, S>;
   leave?: VisitFn<Node, S>;
 };
+
+/** Like {@link VisitFn}, but may return a promise that the walk awaits. */
+export type AsyncVisitFn<T extends Node, S> = (node: T, path: Path<T, S>) => void | Promise<void>;
+
+/** A visitor for {@link walkAsync}: a function, or an object with `enter` and/or `leave`. */
+export type AsyncVisitor<T extends Node, S> =
+  | AsyncVisitFn<T, S>
+  | { enter?: AsyncVisitFn<T, S>; leave?: AsyncVisitFn<T, S> };
+
+/** Visitors passed to {@link walkAsync}. Shaped like {@link Visitors}, with awaitable handlers. */
+export type AsyncVisitors<S = unknown> = {
+  [K in NodeType]?: AsyncVisitor<NodeOfType<K>, S>;
+} & {
+  [K in keyof AliasMap]?: AsyncVisitor<AliasMap[K], S>;
+} & {
+  enter?: AsyncVisitFn<Node, S>;
+  leave?: AsyncVisitFn<Node, S>;
+};
