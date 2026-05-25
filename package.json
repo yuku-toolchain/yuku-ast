@@ -30,7 +30,7 @@
     "type-check": "tsc --noEmit",
     "lint": "oxlint",
     "format": "oxfmt",
-    "release": "bumpp -r --commit 'npm %s' --push --tag --yes --release 'patch'"
+    "release": "bumpp -r --commit 'npm %s' --push --tag"
   },
   "devDependencies": {
     "@types/bun": "latest",
