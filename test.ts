@@ -7,8 +7,10 @@ const result = parse(`[10]`, {
 
 walk(result.program, {
   Literal(_, path) {
-    if (is.ArrayExpression(path.parent)) {
+    if (is.ArrayExpression(path.parent) && is.NumericLiteral(path.node)) {
       path.replace(b.booleanLiteral(true));
     }
   }
 })
+
+console.log()
