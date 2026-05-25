@@ -1,0 +1,38 @@
+{
+  "name": "yuku-walk",
+  "version": "0.0.1",
+  "description": "A fast, typed AST walker for yuku-parser's ESTree / TypeScript-ESTree AST.",
+  "license": "MIT",
+  "type": "module",
+  "module": "src/index.ts",
+  "types": "src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts"
+    }
+  },
+  "files": ["src"],
+  "keywords": ["ast", "walker", "traverse", "visitor", "estree", "yuku", "typescript", "javascript"],
+  "scripts": {
+    "test": "bun test",
+    "typecheck": "tsc --noEmit",
+    "bench": "bun bench/walk.bench.ts",
+    "bench:compare": "bun bench/compare.bench.ts"
+  },
+  "devDependencies": {
+    "@babel/parser": "^7.29.3",
+    "@babel/traverse": "^7.29.0",
+    "@babel/types": "^7.29.0",
+    "@types/babel__traverse": "^7.28.0",
+    "@types/bun": "latest",
+    "estree-walker": "^3.0.3",
+    "oxc-walker": "^1.0.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "yuku-parser": "^0.5.16"
+  }
+}
