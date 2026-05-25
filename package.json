@@ -26,6 +26,7 @@
   ],
   "scripts": {
     "build": "tsdown",
+    "test": "bun test",
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {

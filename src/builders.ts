@@ -29,7 +29,7 @@ export const b = {
   nullLiteral(): t.NullLiteral {
     return { type: "Literal", value: null, raw: "null", ...span };
   },
-  bigintLiteral(value: bigint): t.BigIntLiteral {
+  bigIntLiteral(value: bigint): t.BigIntLiteral {
     return { type: "Literal", value, raw: `${value}n`, bigint: String(value), ...span };
   },
   regExpLiteral(pattern: string, flags = ""): t.RegExpLiteral {
@@ -65,7 +65,8 @@ export const b = {
   restElement(argument: t.BindingPattern): t.RestElement {
     return { type: "RestElement", argument, ...span };
   },
-  property(
+  /** A member of an `ObjectExpression`. For an `ObjectPattern` member, use {@link bindingProperty}. */
+  objectProperty(
     key: t.PropertyKey,
     value: t.Expression,
     opts: { computed?: boolean; shorthand?: boolean; kind?: t.PropertyKind; method?: boolean } = {},
@@ -76,6 +77,23 @@ export const b = {
       key,
       value,
       method: opts.method ?? false,
+      shorthand: opts.shorthand ?? false,
+      computed: opts.computed ?? isComputedKey(key),
+      ...span,
+    };
+  },
+  /** A member of an `ObjectPattern`, whose value is a binding target. For an `ObjectExpression` member, use {@link objectProperty}. */
+  bindingProperty(
+    key: t.PropertyKey,
+    value: t.BindingPattern,
+    opts: { computed?: boolean; shorthand?: boolean } = {},
+  ): t.BindingProperty {
+    return {
+      type: "Property",
+      kind: "init",
+      key,
+      value,
+      method: false,
       shorthand: opts.shorthand ?? false,
       computed: opts.computed ?? isComputedKey(key),
       ...span,
