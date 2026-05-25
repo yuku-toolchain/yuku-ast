@@ -46,6 +46,10 @@ export interface Path<T extends Node = Node, S = unknown> {
   replace(next: Node): void;
   /** Remove the current node from its parent. */
   remove(): void;
+  /** Insert a sibling before the current node. Only valid in an array field. */
+  insertBefore(node: Node): void;
+  /** Insert a sibling after the current node. Only valid in an array field. */
+  insertAfter(node: Node): void;
 }
 
 /** Handler invoked with a node and the {@link Path} cursor. */

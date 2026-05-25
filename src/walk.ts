@@ -21,6 +21,9 @@ interface AliasHandler<S> {
 
 const REMOVED = Symbol("yuku-walk/removed");
 
+/** A node viewed as its fields, for traversal and mutation by key. */
+const fieldsOf = (node: Node): Fields => node as unknown as Fields;
+
 /**
  * One per visited node, holding its own position and a link to its parent path
  * so it stays valid, ancestors included, after the visit returns. Control flow
@@ -61,7 +64,7 @@ class NodePath<S> implements Path<Node, S> {
     this.walker.replacement = next;
     const { parent, key, index } = this;
     if (parent === null || key === null) return;
-    const fields = parent as unknown as Fields;
+    const fields = fieldsOf(parent);
     if (index === null) fields[key] = next;
     else (fields[key] as unknown[])[index] = next;
   }
@@ -69,6 +72,24 @@ class NodePath<S> implements Path<Node, S> {
   remove(): void {
     if (this.parent === null) throw new Error("yuku-walk: cannot remove the root node");
     this.walker.removeFlag = true;
+  }
+
+  insertBefore(node: Node): void {
+    this.insertSibling(node, 0);
+  }
+
+  insertAfter(node: Node): void {
+    this.insertSibling(node, 1);
+  }
+
+  private insertSibling(node: Node, offset: 0 | 1): void {
+    const { parent, key, index } = this;
+    if (parent === null || key === null || index === null) {
+      throw new Error("yuku-walk: insertBefore/insertAfter require a node in an array field");
+    }
+    const list = fieldsOf(parent)[key] as Node[];
+    const at = list.indexOf(this.node);
+    if (at !== -1) list.splice(at + offset, 0, node);
   }
 }
 
@@ -94,11 +115,11 @@ class Walker<S> {
       const entry = entries[name];
       if (!entry) continue;
       if (name === "enter") {
-        this.universalEnter = entry as Handler<S>;
+        if (typeof entry === "function") this.universalEnter = entry;
         continue;
       }
       if (name === "leave") {
-        this.universalLeave = entry as Handler<S>;
+        if (typeof entry === "function") this.universalLeave = entry;
         continue;
       }
 
@@ -194,7 +215,7 @@ class Walker<S> {
   }
 
   private descend(path: NodePath<S>, node: Node, keys: readonly string[]): void {
-    const fields = node as unknown as Fields;
+    const fields = fieldsOf(node);
     for (let k = 0; k < keys.length; k++) {
       const key = keys[k]!;
       const value = fields[key];
@@ -204,9 +225,12 @@ class Walker<S> {
         for (let i = 0; i < value.length; i++) {
           const child = value[i] as Node | null;
           if (child == null) continue;
+          const before = value.length;
           if (this.visit(path, node, child, key, i) === REMOVED) {
             value.splice(i, 1);
             i--;
+          } else {
+            i += value.length - before; // skip siblings inserted during the visit
           }
           if (this.stopFlag) return;
         }
