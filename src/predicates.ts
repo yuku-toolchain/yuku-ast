@@ -4,12 +4,9 @@ import type {
   BooleanLiteral,
   ComputedMemberExpression,
   Directive,
-  Identifier,
   IdentifierName,
   IdentifierReference,
   LabelIdentifier,
-  Literal,
-  MemberExpression,
   Node,
   NullLiteral,
   NumericLiteral,
@@ -19,6 +16,8 @@ import type {
   StringLiteral,
 } from "yuku-parser";
 import { ALIAS_GROUPS, type AliasMap, type AliasName } from "./aliases";
+import type { NodeOfType, NodeType } from "./types";
+import { VISITOR_KEYS } from "./visitor-keys";
 
 type MaybeNode = Node | null | undefined;
 
@@ -27,7 +26,19 @@ function aliasGuard<K extends AliasName>(name: K): (node: MaybeNode) => node is 
   return (node): node is AliasMap[K] => node != null && set.has(node.type);
 }
 
+/** One guard per concrete node `type`, e.g. `is.CallExpression`. */
+type ConcreteGuards = { [K in NodeType]: (node: MaybeNode) => node is NodeOfType<K> };
+
+const concrete = Object.fromEntries(
+  (Object.keys(VISITOR_KEYS) as NodeType[]).map((type) => [
+    type,
+    (node: MaybeNode) => node != null && node.type === type,
+  ]),
+) as ConcreteGuards;
+
 export const is = {
+  ...concrete,
+
   Expression: aliasGuard("Expression"),
   Statement: aliasGuard("Statement"),
   Declaration: aliasGuard("Declaration"),
@@ -40,7 +51,6 @@ export const is = {
   JSX: aliasGuard("JSX"),
   TSType: aliasGuard("TSType"),
 
-  Identifier: (node: MaybeNode): node is Identifier => node?.type === "Identifier",
   IdentifierReference: (node: MaybeNode): node is IdentifierReference =>
     node?.type === "Identifier" && node.kind === "reference",
   BindingIdentifier: (node: MaybeNode): node is BindingIdentifier =>
@@ -48,15 +58,15 @@ export const is = {
   LabelIdentifier: (node: MaybeNode): node is LabelIdentifier => node?.type === "Identifier" && node.kind === "label",
   IdentifierName: (node: MaybeNode): node is IdentifierName => node?.type === "Identifier" && node.kind === "name",
 
-  Literal: (node: MaybeNode): node is Literal => node?.type === "Literal",
   StringLiteral: (node: MaybeNode): node is StringLiteral => node?.type === "Literal" && typeof node.value === "string",
-  NumericLiteral: (node: MaybeNode): node is NumericLiteral => node?.type === "Literal" && typeof node.value === "number",
-  BooleanLiteral: (node: MaybeNode): node is BooleanLiteral => node?.type === "Literal" && typeof node.value === "boolean",
+  NumericLiteral: (node: MaybeNode): node is NumericLiteral =>
+    node?.type === "Literal" && typeof node.value === "number",
+  BooleanLiteral: (node: MaybeNode): node is BooleanLiteral =>
+    node?.type === "Literal" && typeof node.value === "boolean",
   NullLiteral: (node: MaybeNode): node is NullLiteral => node?.type === "Literal" && node.raw === "null",
   BigIntLiteral: (node: MaybeNode): node is BigIntLiteral => node?.type === "Literal" && "bigint" in node,
   RegExpLiteral: (node: MaybeNode): node is RegExpLiteral => node?.type === "Literal" && "regex" in node,
 
-  MemberExpression: (node: MaybeNode): node is MemberExpression => node?.type === "MemberExpression",
   ComputedMemberExpression: (node: MaybeNode): node is ComputedMemberExpression =>
     node?.type === "MemberExpression" && node.computed,
   StaticMemberExpression: (node: MaybeNode): node is StaticMemberExpression =>
