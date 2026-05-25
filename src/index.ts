@@ -4,8 +4,8 @@
 
 export { walk } from "./walk";
 export { walkAsync } from "./walk-async";
-export { VISITOR_KEYS, getVisitorKeys } from "./visitor-keys";
-export { ALIAS_GROUPS } from "./aliases";
+export { is } from "./predicates";
+export { b } from "./builders";
 
 export type { AliasMap, AliasName } from "./aliases";
 export type {
@@ -20,5 +20,3 @@ export type {
   Visitor,
   Visitors,
 } from "./types";
-
-export type * from "yuku-parser";

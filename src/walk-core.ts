@@ -61,6 +61,11 @@ export class NodePath<S> implements Path<Node, S> {
   }
 
   replace(next: Node): void {
+    // Synthetic replacements inherit the original span, for source maps.
+    if (next.start === 0 && next.end === 0) {
+      next.start = this.node.start;
+      next.end = this.node.end;
+    }
     this.node = next;
     this.walker.replacement = next;
     const { parent, key, index } = this;

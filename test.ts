@@ -1,16 +1,17 @@
 import { parse } from "yuku-parser";
-import { walk } from "./src/index";
+import { walk, is, b } from "./src/index";
+import { print } from "yuku-codegen"
 
-const { program } = parse(`[10]`, {
+const result = parse(`[10]`, {
   lang: "ts"
 });
 
-walk(program, {
+walk(result.program, {
   Literal(node, path) {
     if (path.parent?.type == "ArrayExpression") {
-      path.insertBefore(node)
+      path.replace(b.objectExpression([b.property(b.identifier("hello"), b.bigintLiteral(100n))]));
     }
   }
 })
 
-console.log(JSON.stringify(program, null, 2))
+console.log(print(result).code)

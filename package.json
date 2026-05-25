@@ -13,26 +13,17 @@
     }
   },
   "files": ["src"],
-  "keywords": ["ast", "walker", "traverse", "visitor", "estree", "yuku", "typescript", "javascript"],
+  "keywords": ["ast", "walker", "traverse", "visitor", "estree", "yuku", "typescript", "javascript", "transform", "codemod"],
   "scripts": {
-    "test": "bun test",
-    "typecheck": "tsc --noEmit",
-    "bench": "bun bench/walk.bench.ts",
-    "bench:compare": "bun bench/compare.bench.ts"
-  },
-  "devDependencies": {
-    "@babel/parser": "^7.29.3",
-    "@babel/traverse": "^7.29.0",
-    "@babel/types": "^7.29.0",
-    "@types/babel__traverse": "^7.28.0",
-    "@types/bun": "latest",
-    "estree-walker": "^3.0.3",
-    "oxc-walker": "^1.0.0"
+    "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
-    "typescript": "^5"
+    "typescript": "^5",
+    "yuku-parser": "^0.5.16"
   },
-  "dependencies": {
+  "devDependencies": {
+    "@types/bun": "latest",
+    "yuku-codegen": "^0.5.16",
     "yuku-parser": "^0.5.16"
   }
 }
