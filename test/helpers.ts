@@ -18,9 +18,7 @@ export function program(code: string, lang: SourceLang = "ts"): Program {
 
 /** Render a (possibly mutated) parse result back to source, asserting clean codegen. */
 export function render(result: ParseResult): string {
-  // yuku-codegen pins an older yuku-parser whose ParseResult type differs
-  // nominally from ours, though the runtime shape matches. Bridge it here once.
-  const { code, errors } = print(result as unknown as Parameters<typeof print>[0]);
+  const { code, errors } = print(result.program);
   if (errors.length > 0) {
     throw new Error(`unexpected codegen errors: ${errors.map((e) => e.message).join(", ")}`);
   }
