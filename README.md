@@ -24,7 +24,7 @@ walk(program, {
 bun add yuku-walk yuku-parser
 ```
 
-`yuku-parser` and `typescript` are peer dependencies.
+`yuku-parser` is a peer dependency.
 
 ## Visitors
 
@@ -135,6 +135,62 @@ b.variableDeclaration("const", [
   b.variableDeclarator(b.identifier("x", "binding"), b.numericLiteral(0)),
 ]);
 ```
+
+## Transform and print
+
+Pair it with [`yuku-codegen`](https://www.npmjs.com/package/yuku-codegen) to parse,
+rewrite, and print back to source.
+
+```ts
+import { parse } from "yuku-parser";
+import { print } from "yuku-codegen";
+import { walk, is, b } from "yuku-walk";
+
+const { program } = parse("const x = 1; debugger; foo(x, 2);");
+
+walk(program, {
+  DebuggerStatement(_node, path) {
+    path.remove();
+  },
+  Identifier(node, path) {
+    if (node.name === "foo") path.replace(b.identifier("bar"));
+  },
+  Literal(node, path) {
+    if (is.NumericLiteral(node)) path.replace(b.numericLiteral((node.value ?? 0) * 10));
+  },
+});
+
+console.log(print(program).code);
+// const x = 10;
+// bar(x, 20);
+```
+
+`walk` edits the tree in place, so a transform is just a reusable visitor object,
+and passes compose: run as many as you like, then print once.
+
+```ts
+import { walk, b, type Visitors } from "yuku-walk";
+
+const stripDebugger: Visitors = {
+  DebuggerStatement: (_node, path) => path.remove(),
+};
+const inlineDevFlag: Visitors = {
+  Identifier(node, path) {
+    if (node.name === "__DEV__") path.replace(b.booleanLiteral(false));
+  },
+};
+
+const { program } = parse("if (__DEV__) log(); debugger; run();");
+for (const transform of [stripDebugger, inlineDevFlag]) {
+  walk(program, transform);
+}
+console.log(print(program).code);
+// if (false) log();
+// run();
+```
+
+Replacements built with `b.*` inherit the replaced node's source span, so
+`yuku-codegen` source maps still point back to the original input.
 
 ## Async
 
