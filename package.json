@@ -29,10 +29,12 @@
     "test": "bun test",
     "type-check": "tsc --noEmit",
     "lint": "oxlint",
-    "format": "oxfmt"
+    "format": "oxfmt",
+    "release": "bumpp -r --commit 'npm %s' --push --tag --yes --release 'patch'"
   },
   "devDependencies": {
     "@types/bun": "latest",
+    "bumpp": "^11.1.0",
     "oxfmt": "^0.51.0",
     "oxlint": "^1.66.0",
     "tsdown": "^0.22.0",
