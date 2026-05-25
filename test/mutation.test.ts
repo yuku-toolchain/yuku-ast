@@ -40,7 +40,8 @@ describe("mutation: replace", () => {
     walk(result.program, {
       Identifier(node, path) {
         // Replace x with g(y), so its argument y is visited next.
-        if (node.name === "x") path.replace(b.callExpression(b.identifier("g"), [b.identifier("y")]));
+        if (node.name === "x")
+          path.replace(b.callExpression(b.identifier("g"), [b.identifier("y")]));
         else inner.push(node.name);
       },
     });
@@ -159,7 +160,10 @@ describe("mutation: remove", () => {
     walk(result.program, {
       DebuggerStatement: (_node, path) => path.remove(),
     });
-    expect(result.program.body.map((s) => s.type)).toEqual(["ExpressionStatement", "ExpressionStatement"]);
+    expect(result.program.body.map((s) => s.type)).toEqual([
+      "ExpressionStatement",
+      "ExpressionStatement",
+    ]);
   });
 
   test("does not run leave on a removed node", () => {

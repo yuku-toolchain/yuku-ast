@@ -99,13 +99,7 @@ export const ALIAS_GROUPS = {
   ],
   Class: ["ClassDeclaration", "ClassExpression"],
   Method: ["MethodDefinition", "TSAbstractMethodDefinition"],
-  Loop: [
-    "ForStatement",
-    "ForInStatement",
-    "ForOfStatement",
-    "WhileStatement",
-    "DoWhileStatement",
-  ],
+  Loop: ["ForStatement", "ForInStatement", "ForOfStatement", "WhileStatement", "DoWhileStatement"],
   Pattern: ["Identifier", "ArrayPattern", "ObjectPattern", "AssignmentPattern", "RestElement"],
   JSX: [
     "JSXElement",

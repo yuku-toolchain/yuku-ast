@@ -184,7 +184,13 @@ describe("walk: nullable and array fields", () => {
     // An if with no else, alternate is null.
     const types: string[] = [];
     walk(program("if (a) b;"), { enter: (n: Node) => void types.push(n.type) });
-    expect(types).toEqual(["Program", "IfStatement", "Identifier", "ExpressionStatement", "Identifier"]);
+    expect(types).toEqual([
+      "Program",
+      "IfStatement",
+      "Identifier",
+      "ExpressionStatement",
+      "Identifier",
+    ]);
   });
 
   test("skips holes (null elements) in array fields", () => {

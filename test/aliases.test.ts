@@ -13,12 +13,23 @@ function typesFor(alias: string, code: string, lang?: "ts" | "tsx"): string[] {
 describe("alias groups", () => {
   test("Expression matches expression node types", () => {
     const types = typesFor("Expression", "a + b * c;");
-    expect(types).toEqual(["BinaryExpression", "Identifier", "BinaryExpression", "Identifier", "Identifier"]);
+    expect(types).toEqual([
+      "BinaryExpression",
+      "Identifier",
+      "BinaryExpression",
+      "Identifier",
+      "Identifier",
+    ]);
   });
 
   test("Statement matches statement node types", () => {
     const types = typesFor("Statement", "{ a; if (b) c; }");
-    expect(types).toEqual(["BlockStatement", "ExpressionStatement", "IfStatement", "ExpressionStatement"]);
+    expect(types).toEqual([
+      "BlockStatement",
+      "ExpressionStatement",
+      "IfStatement",
+      "ExpressionStatement",
+    ]);
   });
 
   test("Declaration matches declaration node types", () => {
@@ -27,12 +38,22 @@ describe("alias groups", () => {
   });
 
   test("ModuleDeclaration matches import and export node types", () => {
-    const types = typesFor("ModuleDeclaration", "import a from 'm'; export { a }; export default 1;");
-    expect(types).toEqual(["ImportDeclaration", "ExportNamedDeclaration", "ExportDefaultDeclaration"]);
+    const types = typesFor(
+      "ModuleDeclaration",
+      "import a from 'm'; export { a }; export default 1;",
+    );
+    expect(types).toEqual([
+      "ImportDeclaration",
+      "ExportNamedDeclaration",
+      "ExportDefaultDeclaration",
+    ]);
   });
 
   test("Function includes arrow functions and both declaration and expression forms", () => {
-    const types = typesFor("Function", "function a() {} const b = function () {}; const c = () => {};");
+    const types = typesFor(
+      "Function",
+      "function a() {} const b = function () {}; const c = () => {};",
+    );
     expect(types).toEqual(["FunctionDeclaration", "FunctionExpression", "ArrowFunctionExpression"]);
   });
 
@@ -109,7 +130,14 @@ describe("alias groups", () => {
         leave: (n) => void log.push(`<${n.type}`),
       },
     });
-    expect(log).toEqual([">BinaryExpression", ">Identifier", "<Identifier", ">Identifier", "<Identifier", "<BinaryExpression"]);
+    expect(log).toEqual([
+      ">BinaryExpression",
+      ">Identifier",
+      "<Identifier",
+      ">Identifier",
+      "<Identifier",
+      "<BinaryExpression",
+    ]);
   });
 
   test("a node in two registered alias groups runs both, leave in reverse", () => {

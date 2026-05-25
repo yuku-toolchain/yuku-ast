@@ -213,7 +213,9 @@ export const VISITOR_KEYS = {
 // Completeness guard. `satisfies` above rejects a key that is not a child field,
 // but cannot tell that a child field is missing.
 type UnlistedChildKeys = {
-  [K in NodeType as [Exclude<ChildKeys<NodeOfType<K>>, (typeof VISITOR_KEYS)[K][number]>] extends [never]
+  [K in NodeType as [Exclude<ChildKeys<NodeOfType<K>>, (typeof VISITOR_KEYS)[K][number]>] extends [
+    never,
+  ]
     ? never
     : K]: Exclude<ChildKeys<NodeOfType<K>>, (typeof VISITOR_KEYS)[K][number]>;
 };

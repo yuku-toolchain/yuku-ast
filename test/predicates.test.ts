@@ -4,7 +4,11 @@ import { is, walk } from "../src/index";
 import { program } from "./helpers";
 
 /** First node matching the guard while walking the source, typed as that guard's node. */
-function find<T extends Node>(code: string, guard: (node: Node) => node is T, lang?: "ts" | "tsx"): T {
+function find<T extends Node>(
+  code: string,
+  guard: (node: Node) => node is T,
+  lang?: "ts" | "tsx",
+): T {
   let found: T | undefined;
   walk(program(code, lang), {
     enter(node, path) {

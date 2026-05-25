@@ -7,21 +7,32 @@ describe("builders: span", () => {
     const prog = b.program([
       b.variableDeclaration("const", [
         b.variableDeclarator(
-          b.arrayPattern([b.identifier("a", "binding"), b.restElement(b.identifier("rest", "binding"))]),
+          b.arrayPattern([
+            b.identifier("a", "binding"),
+            b.restElement(b.identifier("rest", "binding")),
+          ]),
           b.objectExpression([
-            b.objectProperty(b.identifier("a", "name"), b.arrayExpression([b.numericLiteral(1), b.stringLiteral("s")])),
+            b.objectProperty(
+              b.identifier("a", "name"),
+              b.arrayExpression([b.numericLiteral(1), b.stringLiteral("s")]),
+            ),
           ]),
         ),
       ]),
       b.functionDeclaration(
         b.identifier("f", "binding"),
         [b.identifier("x", "binding")],
-        b.blockStatement([b.returnStatement(b.binaryExpression("+", b.identifier("x"), b.numericLiteral(1)))]),
+        b.blockStatement([
+          b.returnStatement(b.binaryExpression("+", b.identifier("x"), b.numericLiteral(1))),
+        ]),
       ),
       b.classDeclaration(
         b.identifier("C", "binding"),
         b.classBody([
-          b.methodDefinition(b.identifier("m", "name"), b.functionExpression([], b.blockStatement([]))),
+          b.methodDefinition(
+            b.identifier("m", "name"),
+            b.functionExpression([], b.blockStatement([])),
+          ),
           b.propertyDefinition(b.identifier("p", "name"), b.numericLiteral(0)),
         ]),
       ),
@@ -60,7 +71,7 @@ describe("builders: round-trip through codegen", () => {
       ),
     ]);
     expect(renderProgram(prog)).toBe(
-      ['const x = 1 + 2;', 'function f(a) {', '  return a;', '}', 'console.log("hi");'].join("\n"),
+      ["const x = 1 + 2;", "function f(a) {", "  return a;", "}", 'console.log("hi");'].join("\n"),
     );
   });
 
@@ -72,7 +83,9 @@ describe("builders: round-trip through codegen", () => {
         b.blockStatement([b.expressionStatement(b.identifier("c"))]),
       ),
       b.forStatement(
-        b.variableDeclaration("let", [b.variableDeclarator(b.identifier("i", "binding"), b.numericLiteral(0))]),
+        b.variableDeclaration("let", [
+          b.variableDeclarator(b.identifier("i", "binding"), b.numericLiteral(0)),
+        ]),
         b.binaryExpression("<", b.identifier("i"), b.numericLiteral(10)),
         b.updateExpression("++", b.identifier("i"), false),
         b.blockStatement([]),
@@ -99,7 +112,9 @@ describe("builders: round-trip through codegen", () => {
         b.variableDeclarator(
           b.objectPattern([
             // shorthand `{ a }` and renamed `{ b: c }`
-            b.bindingProperty(b.identifier("a", "name"), b.identifier("a", "binding"), { shorthand: true }),
+            b.bindingProperty(b.identifier("a", "name"), b.identifier("a", "binding"), {
+              shorthand: true,
+            }),
             b.bindingProperty(b.identifier("b", "name"), b.identifier("c", "binding")),
             b.restElement(b.identifier("rest", "binding")),
           ]),
@@ -140,15 +155,16 @@ describe("builders: computed-key inference", () => {
   test("an Identifier key is not computed", () => {
     expect(b.objectProperty(b.identifier("a", "name"), b.numericLiteral(1)).computed).toBe(false);
     expect(b.memberExpression(b.identifier("o"), b.identifier("p", "name")).computed).toBe(false);
-    expect(b.methodDefinition(b.identifier("m", "name"), b.functionExpression([], b.blockStatement([]))).computed).toBe(
-      false,
-    );
+    expect(
+      b.methodDefinition(b.identifier("m", "name"), b.functionExpression([], b.blockStatement([])))
+        .computed,
+    ).toBe(false);
   });
 
   test("a PrivateIdentifier key is not computed", () => {
-    expect(
-      b.propertyDefinition(b.privateIdentifier("x"), b.numericLiteral(1)).computed,
-    ).toBe(false);
+    expect(b.propertyDefinition(b.privateIdentifier("x"), b.numericLiteral(1)).computed).toBe(
+      false,
+    );
   });
 
   test("a literal or other expression key is computed", () => {
@@ -157,8 +173,12 @@ describe("builders: computed-key inference", () => {
   });
 
   test("an explicit computed option overrides inference", () => {
-    expect(b.objectProperty(b.identifier("a", "name"), b.numericLiteral(1), { computed: true }).computed).toBe(true);
-    expect(b.objectProperty(b.stringLiteral("a"), b.numericLiteral(1), { computed: false }).computed).toBe(false);
+    expect(
+      b.objectProperty(b.identifier("a", "name"), b.numericLiteral(1), { computed: true }).computed,
+    ).toBe(true);
+    expect(
+      b.objectProperty(b.stringLiteral("a"), b.numericLiteral(1), { computed: false }).computed,
+    ).toBe(false);
   });
 });
 
@@ -190,8 +210,12 @@ describe("builders: defaults and derived fields", () => {
   });
 
   test("forOfStatement defaults await to false", () => {
-    expect(b.forOfStatement(b.identifier("a"), b.identifier("b"), b.blockStatement([])).await).toBe(false);
-    expect(b.forOfStatement(b.identifier("a"), b.identifier("b"), b.blockStatement([]), true).await).toBe(true);
+    expect(b.forOfStatement(b.identifier("a"), b.identifier("b"), b.blockStatement([])).await).toBe(
+      false,
+    );
+    expect(
+      b.forOfStatement(b.identifier("a"), b.identifier("b"), b.blockStatement([]), true).await,
+    ).toBe(true);
   });
 
   test("classDeclaration defaults decorators, superClass, and implements", () => {

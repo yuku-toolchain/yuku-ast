@@ -105,11 +105,11 @@ A guard for every node `type`, the alias families, and the variants that share a
 ```ts
 import { is } from "yuku-walk";
 
-is.CallExpression(node);          // every concrete type
-is.Expression(node);              // families
-is.StringLiteral(node);           // Literal variants
-is.StaticMemberExpression(node);  // MemberExpression variants
-is.BindingIdentifier(node);       // Identifier roles, via `kind`
+is.CallExpression(node); // every concrete type
+is.Expression(node); // families
+is.StringLiteral(node); // Literal variants
+is.StaticMemberExpression(node); // MemberExpression variants
+is.BindingIdentifier(node); // Identifier roles, via `kind`
 
 walk(program, {
   Literal(node, path) {

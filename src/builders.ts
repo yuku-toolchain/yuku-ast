@@ -10,7 +10,11 @@ export const b = {
   identifier(
     name: string,
     kind: t.IdentifierKind = "reference",
-    opts: { typeAnnotation?: t.TSTypeAnnotation | null; optional?: boolean; decorators?: t.Decorator[] } = {},
+    opts: {
+      typeAnnotation?: t.TSTypeAnnotation | null;
+      optional?: boolean;
+      decorators?: t.Decorator[];
+    } = {},
   ): t.Identifier {
     return { type: "Identifier", name, kind, ...opts, ...span };
   },
@@ -37,7 +41,13 @@ export const b = {
     try {
       value = new RegExp(pattern, flags);
     } catch {}
-    return { type: "Literal", value, raw: `/${pattern}/${flags}`, regex: { pattern, flags }, ...span };
+    return {
+      type: "Literal",
+      value,
+      raw: `/${pattern}/${flags}`,
+      regex: { pattern, flags },
+      ...span,
+    };
   },
   templateLiteral(quasis: t.TemplateElement[], expressions: t.Expression[]): t.TemplateLiteral {
     return { type: "TemplateLiteral", quasis, expressions, ...span };
@@ -119,7 +129,11 @@ export const b = {
   unaryExpression(operator: t.UnaryOperator, argument: t.Expression): t.UnaryExpression {
     return { type: "UnaryExpression", operator, prefix: true, argument, ...span };
   },
-  updateExpression(operator: t.UpdateOperator, argument: t.Expression, prefix = false): t.UpdateExpression {
+  updateExpression(
+    operator: t.UpdateOperator,
+    argument: t.Expression,
+    prefix = false,
+  ): t.UpdateExpression {
     return { type: "UpdateExpression", operator, argument, prefix, ...span };
   },
   binaryExpression(
@@ -129,7 +143,11 @@ export const b = {
   ): t.BinaryExpression {
     return { type: "BinaryExpression", operator, left, right, ...span };
   },
-  logicalExpression(operator: t.LogicalOperator, left: t.Expression, right: t.Expression): t.LogicalExpression {
+  logicalExpression(
+    operator: t.LogicalOperator,
+    left: t.Expression,
+    right: t.Expression,
+  ): t.LogicalExpression {
     return { type: "LogicalExpression", operator, left, right, ...span };
   },
   assignmentExpression(
@@ -171,7 +189,14 @@ export const b = {
     args: t.Argument[] = [],
     opts: { optional?: boolean; typeArguments?: t.TSTypeParameterInstantiation | null } = {},
   ): t.CallExpression {
-    return { type: "CallExpression", callee, arguments: args, optional: opts.optional ?? false, ...opts, ...span };
+    return {
+      type: "CallExpression",
+      callee,
+      arguments: args,
+      optional: opts.optional ?? false,
+      ...opts,
+      ...span,
+    };
   },
   newExpression(
     callee: t.Expression,
@@ -191,20 +216,35 @@ export const b = {
     return { type: "TaggedTemplateExpression", tag, quasi, ...opts, ...span };
   },
   metaProperty(meta: string, property: string): t.MetaProperty {
-    return { type: "MetaProperty", meta: b.identifier(meta, "name"), property: b.identifier(property, "name"), ...span };
+    return {
+      type: "MetaProperty",
+      meta: b.identifier(meta, "name"),
+      property: b.identifier(property, "name"),
+      ...span,
+    };
   },
   importExpression(
     source: t.Expression,
     opts: { options?: t.Expression | null; phase?: t.ImportPhase | null } = {},
   ): t.ImportExpression {
-    return { type: "ImportExpression", source, options: opts.options ?? null, phase: opts.phase ?? null, ...span };
+    return {
+      type: "ImportExpression",
+      source,
+      options: opts.options ?? null,
+      phase: opts.phase ?? null,
+      ...span,
+    };
   },
 
   // Functions
   arrowFunctionExpression(
     params: t.FunctionParameter[],
     body: t.BlockStatement | t.Expression,
-    opts: { async?: boolean; typeParameters?: t.TSTypeParameterDeclaration | null; returnType?: t.TSTypeAnnotation | null } = {},
+    opts: {
+      async?: boolean;
+      typeParameters?: t.TSTypeParameterDeclaration | null;
+      returnType?: t.TSTypeAnnotation | null;
+    } = {},
   ): t.ArrowFunctionExpression {
     return {
       type: "ArrowFunctionExpression",
@@ -394,7 +434,12 @@ export const b = {
     return { type: "ExpressionStatement", expression, ...span };
   },
   directive(value: string): t.Directive {
-    return { type: "ExpressionStatement", expression: b.stringLiteral(value), directive: value, ...span };
+    return {
+      type: "ExpressionStatement",
+      expression: b.stringLiteral(value),
+      directive: value,
+      ...span,
+    };
   },
   blockStatement(body: t.Statement[] = []): t.BlockStatement {
     return { type: "BlockStatement", body, ...span };
@@ -408,7 +453,11 @@ export const b = {
   returnStatement(argument: t.Expression | null = null): t.ReturnStatement {
     return { type: "ReturnStatement", argument, ...span };
   },
-  ifStatement(test: t.Expression, consequent: t.Statement, alternate: t.Statement | null = null): t.IfStatement {
+  ifStatement(
+    test: t.Expression,
+    consequent: t.Statement,
+    alternate: t.Statement | null = null,
+  ): t.IfStatement {
     return { type: "IfStatement", test, consequent, alternate, ...span };
   },
   switchStatement(discriminant: t.Expression, cases: t.SwitchCase[]): t.SwitchStatement {
@@ -444,7 +493,11 @@ export const b = {
   ): t.ForStatement {
     return { type: "ForStatement", init, test, update, body, ...span };
   },
-  forInStatement(left: t.ForStatementLeft, right: t.Expression, body: t.Statement): t.ForInStatement {
+  forInStatement(
+    left: t.ForStatementLeft,
+    right: t.Expression,
+    body: t.Statement,
+  ): t.ForInStatement {
     return { type: "ForInStatement", left, right, body, ...span };
   },
   forOfStatement(
@@ -469,7 +522,10 @@ export const b = {
   },
 
   // Variable declarations
-  variableDeclaration(kind: t.VariableDeclarationKind, declarations: t.VariableDeclarator[]): t.VariableDeclaration {
+  variableDeclaration(
+    kind: t.VariableDeclarationKind,
+    declarations: t.VariableDeclarator[],
+  ): t.VariableDeclaration {
     return { type: "VariableDeclaration", kind, declarations, ...span };
   },
   variableDeclarator(id: t.BindingPattern, init: t.Expression | null = null): t.VariableDeclarator {
@@ -480,7 +536,11 @@ export const b = {
   importDeclaration(
     specifiers: t.ImportDeclarationSpecifier[],
     source: t.StringLiteral,
-    opts: { attributes?: t.ImportAttribute[]; phase?: t.ImportPhase | null; importKind?: t.ImportOrExportKind } = {},
+    opts: {
+      attributes?: t.ImportAttribute[];
+      phase?: t.ImportPhase | null;
+      importKind?: t.ImportOrExportKind;
+    } = {},
   ): t.ImportDeclaration {
     return {
       type: "ImportDeclaration",
@@ -492,7 +552,10 @@ export const b = {
       ...span,
     };
   },
-  importSpecifier(imported: t.IdentifierName | t.StringLiteral, local: t.BindingIdentifier): t.ImportSpecifier {
+  importSpecifier(
+    imported: t.IdentifierName | t.StringLiteral,
+    local: t.BindingIdentifier,
+  ): t.ImportSpecifier {
     return { type: "ImportSpecifier", imported, local, ...span };
   },
   importDefaultSpecifier(local: t.BindingIdentifier): t.ImportDefaultSpecifier {
@@ -507,7 +570,11 @@ export const b = {
   exportNamedDeclaration(
     declaration: t.Declaration | null,
     specifiers: t.ExportSpecifier[] = [],
-    opts: { source?: t.StringLiteral | null; attributes?: t.ImportAttribute[]; exportKind?: t.ImportOrExportKind } = {},
+    opts: {
+      source?: t.StringLiteral | null;
+      attributes?: t.ImportAttribute[];
+      exportKind?: t.ImportOrExportKind;
+    } = {},
   ): t.ExportNamedDeclaration {
     return {
       type: "ExportNamedDeclaration",
@@ -519,12 +586,18 @@ export const b = {
       ...span,
     };
   },
-  exportDefaultDeclaration(declaration: t.ExportDefaultDeclarationKind): t.ExportDefaultDeclaration {
+  exportDefaultDeclaration(
+    declaration: t.ExportDefaultDeclarationKind,
+  ): t.ExportDefaultDeclaration {
     return { type: "ExportDefaultDeclaration", declaration, ...span };
   },
   exportAllDeclaration(
     source: t.StringLiteral,
-    opts: { exported?: t.ModuleExportName | null; attributes?: t.ImportAttribute[]; exportKind?: t.ImportOrExportKind } = {},
+    opts: {
+      exported?: t.ModuleExportName | null;
+      attributes?: t.ImportAttribute[];
+      exportKind?: t.ImportOrExportKind;
+    } = {},
   ): t.ExportAllDeclaration {
     return {
       type: "ExportAllDeclaration",
@@ -546,7 +619,10 @@ export const b = {
   jsxNamespacedName(namespace: t.JSXIdentifier, name: t.JSXIdentifier): t.JSXNamespacedName {
     return { type: "JSXNamespacedName", namespace, name, ...span };
   },
-  jsxMemberExpression(object: t.JSXMemberExpressionObject, property: t.JSXIdentifier): t.JSXMemberExpression {
+  jsxMemberExpression(
+    object: t.JSXMemberExpressionObject,
+    property: t.JSXIdentifier,
+  ): t.JSXMemberExpression {
     return { type: "JSXMemberExpression", object, property, ...span };
   },
   jsxElement(
@@ -654,7 +730,13 @@ export const b = {
   },
   tsTypeParameter(
     name: t.BindingIdentifier,
-    opts: { constraint?: t.TSType | null; default?: t.TSType | null; in?: boolean; out?: boolean; const?: boolean } = {},
+    opts: {
+      constraint?: t.TSType | null;
+      default?: t.TSType | null;
+      in?: boolean;
+      out?: boolean;
+      const?: boolean;
+    } = {},
   ): t.TSTypeParameter {
     return {
       type: "TSTypeParameter",
@@ -688,7 +770,11 @@ export const b = {
   tsTupleType(elementTypes: t.TSTupleElement[]): t.TSTupleType {
     return { type: "TSTupleType", elementTypes, ...span };
   },
-  tsNamedTupleMember(label: t.IdentifierName, elementType: t.TSType, optional = false): t.TSNamedTupleMember {
+  tsNamedTupleMember(
+    label: t.IdentifierName,
+    elementType: t.TSType,
+    optional = false,
+  ): t.TSNamedTupleMember {
     return { type: "TSNamedTupleMember", label, elementType, optional, ...span };
   },
   tsOptionalType(typeAnnotation: t.TSType): t.TSOptionalType {
@@ -723,7 +809,10 @@ export const b = {
   tsInferType(typeParameter: t.TSTypeParameter): t.TSInferType {
     return { type: "TSInferType", typeParameter, ...span };
   },
-  tsTypeOperator(operator: t.TSTypeOperator["operator"], typeAnnotation: t.TSType): t.TSTypeOperator {
+  tsTypeOperator(
+    operator: t.TSTypeOperator["operator"],
+    typeAnnotation: t.TSType,
+  ): t.TSTypeOperator {
     return { type: "TSTypeOperator", operator, typeAnnotation, ...span };
   },
   tsParenthesizedType(typeAnnotation: t.TSType): t.TSParenthesizedType {
@@ -785,7 +874,12 @@ export const b = {
   // TypeScript: signatures
   tsPropertySignature(
     key: t.PropertyKey,
-    opts: { typeAnnotation?: t.TSTypeAnnotation | null; computed?: boolean; optional?: boolean; readonly?: boolean } = {},
+    opts: {
+      typeAnnotation?: t.TSTypeAnnotation | null;
+      computed?: boolean;
+      optional?: boolean;
+      readonly?: boolean;
+    } = {},
   ): t.TSPropertySignature {
     return {
       type: "TSPropertySignature",
@@ -873,7 +967,11 @@ export const b = {
   tsInterfaceDeclaration(
     id: t.BindingIdentifier,
     body: t.TSInterfaceBody,
-    opts: { extends?: t.TSInterfaceHeritage[]; typeParameters?: t.TSTypeParameterDeclaration | null; declare?: boolean } = {},
+    opts: {
+      extends?: t.TSInterfaceHeritage[];
+      typeParameters?: t.TSTypeParameterDeclaration | null;
+      declare?: boolean;
+    } = {},
   ): t.TSInterfaceDeclaration {
     return {
       type: "TSInterfaceDeclaration",
@@ -905,7 +1003,14 @@ export const b = {
     body: t.TSEnumBody,
     opts: { const?: boolean; declare?: boolean } = {},
   ): t.TSEnumDeclaration {
-    return { type: "TSEnumDeclaration", id, body, const: opts.const ?? false, declare: opts.declare ?? false, ...span };
+    return {
+      type: "TSEnumDeclaration",
+      id,
+      body,
+      const: opts.const ?? false,
+      declare: opts.declare ?? false,
+      ...span,
+    };
   },
   tsEnumBody(members: t.TSEnumMember[]): t.TSEnumBody {
     return { type: "TSEnumBody", members, ...span };
@@ -933,7 +1038,12 @@ export const b = {
   },
   tsParameterProperty(
     parameter: t.BindingIdentifier | t.AssignmentPattern,
-    opts: { accessibility?: t.TSAccessibility | null; readonly?: boolean; override?: boolean; decorators?: t.Decorator[] } = {},
+    opts: {
+      accessibility?: t.TSAccessibility | null;
+      readonly?: boolean;
+      override?: boolean;
+      decorators?: t.Decorator[];
+    } = {},
   ): t.TSParameterProperty {
     return {
       type: "TSParameterProperty",
@@ -951,7 +1061,10 @@ export const b = {
   tsAsExpression(expression: t.Expression, typeAnnotation: t.TSType): t.TSAsExpression {
     return { type: "TSAsExpression", expression, typeAnnotation, ...span };
   },
-  tsSatisfiesExpression(expression: t.Expression, typeAnnotation: t.TSType): t.TSSatisfiesExpression {
+  tsSatisfiesExpression(
+    expression: t.Expression,
+    typeAnnotation: t.TSType,
+  ): t.TSSatisfiesExpression {
     return { type: "TSSatisfiesExpression", expression, typeAnnotation, ...span };
   },
   tsTypeAssertion(typeAnnotation: t.TSType, expression: t.Expression): t.TSTypeAssertion {
@@ -985,7 +1098,13 @@ export const b = {
   tsDeclareFunction(
     id: t.BindingIdentifier | null,
     params: t.FunctionParameter[],
-    opts: { async?: boolean; generator?: boolean; returnType?: t.TSTypeAnnotation | null; typeParameters?: t.TSTypeParameterDeclaration | null; declare?: boolean } = {},
+    opts: {
+      async?: boolean;
+      generator?: boolean;
+      returnType?: t.TSTypeAnnotation | null;
+      typeParameters?: t.TSTypeParameterDeclaration | null;
+      declare?: boolean;
+    } = {},
   ): t.TSDeclareFunction {
     return {
       type: "TSDeclareFunction",
@@ -1004,7 +1123,11 @@ export const b = {
 
   tsEmptyBodyFunctionExpression(
     params: t.FunctionParameter[],
-    opts: { id?: t.BindingIdentifier | null; returnType?: t.TSTypeAnnotation | null; typeParameters?: t.TSTypeParameterDeclaration | null } = {},
+    opts: {
+      id?: t.BindingIdentifier | null;
+      returnType?: t.TSTypeAnnotation | null;
+      typeParameters?: t.TSTypeParameterDeclaration | null;
+    } = {},
   ): t.TSEmptyBodyFunctionExpression {
     return {
       type: "TSEmptyBodyFunctionExpression",

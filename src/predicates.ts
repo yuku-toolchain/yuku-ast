@@ -55,17 +55,23 @@ export const is = {
     node?.type === "Identifier" && node.kind === "reference",
   BindingIdentifier: (node: MaybeNode): node is BindingIdentifier =>
     node?.type === "Identifier" && node.kind === "binding",
-  LabelIdentifier: (node: MaybeNode): node is LabelIdentifier => node?.type === "Identifier" && node.kind === "label",
-  IdentifierName: (node: MaybeNode): node is IdentifierName => node?.type === "Identifier" && node.kind === "name",
+  LabelIdentifier: (node: MaybeNode): node is LabelIdentifier =>
+    node?.type === "Identifier" && node.kind === "label",
+  IdentifierName: (node: MaybeNode): node is IdentifierName =>
+    node?.type === "Identifier" && node.kind === "name",
 
-  StringLiteral: (node: MaybeNode): node is StringLiteral => node?.type === "Literal" && typeof node.value === "string",
+  StringLiteral: (node: MaybeNode): node is StringLiteral =>
+    node?.type === "Literal" && typeof node.value === "string",
   NumericLiteral: (node: MaybeNode): node is NumericLiteral =>
     node?.type === "Literal" && typeof node.value === "number",
   BooleanLiteral: (node: MaybeNode): node is BooleanLiteral =>
     node?.type === "Literal" && typeof node.value === "boolean",
-  NullLiteral: (node: MaybeNode): node is NullLiteral => node?.type === "Literal" && node.raw === "null",
-  BigIntLiteral: (node: MaybeNode): node is BigIntLiteral => node?.type === "Literal" && "bigint" in node,
-  RegExpLiteral: (node: MaybeNode): node is RegExpLiteral => node?.type === "Literal" && "regex" in node,
+  NullLiteral: (node: MaybeNode): node is NullLiteral =>
+    node?.type === "Literal" && node.raw === "null",
+  BigIntLiteral: (node: MaybeNode): node is BigIntLiteral =>
+    node?.type === "Literal" && "bigint" in node,
+  RegExpLiteral: (node: MaybeNode): node is RegExpLiteral =>
+    node?.type === "Literal" && "regex" in node,
 
   ComputedMemberExpression: (node: MaybeNode): node is ComputedMemberExpression =>
     node?.type === "MemberExpression" && node.computed,
@@ -74,5 +80,6 @@ export const is = {
   PrivateFieldExpression: (node: MaybeNode): node is PrivateFieldExpression =>
     node?.type === "MemberExpression" && node.property.type === "PrivateIdentifier",
 
-  Directive: (node: MaybeNode): node is Directive => node?.type === "ExpressionStatement" && node.directive != null,
+  Directive: (node: MaybeNode): node is Directive =>
+    node?.type === "ExpressionStatement" && node.directive != null,
 };

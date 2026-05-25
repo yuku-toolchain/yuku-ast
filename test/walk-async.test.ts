@@ -81,7 +81,8 @@ describe("walkAsync: mutation", () => {
     await walkAsync(result.program, {
       async Identifier(node, path) {
         await tick();
-        if (node.name === "x") path.replace(b.callExpression(b.identifier("g"), [b.identifier("y")]));
+        if (node.name === "x")
+          path.replace(b.callExpression(b.identifier("g"), [b.identifier("y")]));
         else inner.push(node.name);
       },
     });

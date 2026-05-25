@@ -8,7 +8,11 @@ class AsyncWalker<S> extends WalkerCore<S> {
     return result === REMOVED ? root : result;
   }
 
-  private async apply(handlers: readonly Handler<S>[], node: Node, path: NodePath<S>): Promise<Node> {
+  private async apply(
+    handlers: readonly Handler<S>[],
+    node: Node,
+    path: NodePath<S>,
+  ): Promise<Node> {
     this.removeFlag = false;
     for (let i = 0; i < handlers.length; i++) {
       this.replacement = null;
@@ -76,7 +80,8 @@ class AsyncWalker<S> extends WalkerCore<S> {
           if (this.stopFlag) return;
         }
       } else {
-        if ((await this.visit(path, node, value as Node, key, null)) === REMOVED) fields[key] = null;
+        if ((await this.visit(path, node, value as Node, key, null)) === REMOVED)
+          fields[key] = null;
         if (this.stopFlag) return;
       }
     }
