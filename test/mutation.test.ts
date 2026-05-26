@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import type { Identifier, VariableDeclaration } from "yuku-parser";
-import { b, walk } from "../src/index";
+import { b } from "../src/index";
+import { walk } from "../src/walk";
 import { parseOk, program, render } from "./helpers";
 
 describe("mutation: replace", () => {

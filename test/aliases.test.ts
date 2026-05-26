@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import type { Node } from "yuku-parser";
-import { walk } from "../src/index";
+import { walk } from "../src/walk";
 import { program } from "./helpers";
 
 /** Collect the `type` of every node an alias handler fires for. */

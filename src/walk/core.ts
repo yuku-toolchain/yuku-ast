@@ -1,7 +1,7 @@
 import type { Node } from "yuku-parser";
-import { ALIAS_GROUPS } from "./aliases";
-import type { NodeType, Path } from "./types";
-import { VISITOR_KEYS } from "./visitor-keys";
+import { ALIAS_GROUPS } from "../aliases";
+import type { NodeType, Path } from "../types";
+import { VISITOR_KEYS } from "../visitor-keys";
 
 export type Handler<S> = (node: Node, path: Path<Node, S>) => unknown;
 type Entry<S> = Handler<S> | { enter?: Handler<S>; leave?: Handler<S> };
@@ -20,7 +20,7 @@ interface AliasHandler<S> {
 }
 
 /** Returned up the stack when a visitor calls `remove()`. */
-export const REMOVED = Symbol("yuku-walk/removed");
+export const REMOVED = Symbol("yuku-ast/removed");
 
 /** A node viewed as its fields, for traversal and mutation by key. */
 export const fieldsOf = (node: Node): Fields => node as unknown as Fields;
@@ -76,7 +76,7 @@ export class NodePath<S> implements Path<Node, S> {
   }
 
   remove(): void {
-    if (this.parent === null) throw new Error("yuku-walk: cannot remove the root node");
+    if (this.parent === null) throw new Error("yuku-ast: cannot remove the root node");
     this.walker.removeFlag = true;
   }
 
@@ -91,7 +91,7 @@ export class NodePath<S> implements Path<Node, S> {
   private insertSibling(node: Node, offset: 0 | 1): void {
     const { parent, key, index } = this;
     if (parent === null || key === null || index === null) {
-      throw new Error("yuku-walk: insertBefore/insertAfter require a node in an array field");
+      throw new Error("yuku-ast: insertBefore/insertAfter require a node in an array field");
     }
     const list = fieldsOf(parent)[key] as Node[];
     const at = list.indexOf(this.node);

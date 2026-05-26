@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { b, walkAsync } from "../src/index";
+import { b } from "../src/index";
+import { walkAsync } from "../src/walk";
 import { parseOk, program, render } from "./helpers";
 
 const tick = () => new Promise<void>((resolve) => setTimeout(resolve, 0));

@@ -1,13 +1,19 @@
-# yuku-walk
+# yuku-ast
 
-A fast, fully typed AST walker for [`yuku-parser`](https://www.npmjs.com/package/yuku-parser).
+A fast, fully typed AST toolkit for [`yuku-parser`](https://www.npmjs.com/package/yuku-parser):
+node builders, type guards, a walker, and identifier validators. No runtime dependencies.
 
-Type-keyed visitors with `enter`/`leave`, alias groups, in-place mutation, and a
-complete set of type guards and node builders. No runtime dependencies.
+The package is split into three entry points so you only pull in what you use:
+
+| Import                | Provides                                          |
+| --------------------- | ------------------------------------------------- |
+| `yuku-ast`            | `b` (node builders), `is` (type guards)           |
+| `yuku-ast/walk`       | `walk`, `walkAsync`, and the visitor / path types |
+| `yuku-ast/identifier` | identifier and reserved-word validators           |
 
 ```ts
 import { parse } from "yuku-parser";
-import { walk } from "yuku-walk";
+import { walk } from "yuku-ast/walk";
 
 const { program } = parse("const greet = (name) => `hi ${name}`;");
 
@@ -21,7 +27,7 @@ walk(program, {
 ## Install
 
 ```sh
-bun add yuku-walk yuku-parser
+bun add yuku-ast yuku-parser
 ```
 
 `yuku-parser` is a peer dependency.
@@ -103,7 +109,7 @@ A guard for every node `type`, the alias families, and the variants that share a
 `type` string. All accept `null` / `undefined` and return `false`.
 
 ```ts
-import { is } from "yuku-walk";
+import { is } from "yuku-ast";
 
 is.CallExpression(node); // every concrete type
 is.Expression(node); // families
@@ -126,7 +132,7 @@ A builder for every node type. Required fields are positional, the rest go in a
 trailing options object. Synthetic nodes get a zero span.
 
 ```ts
-import { b } from "yuku-walk";
+import { b } from "yuku-ast";
 
 b.identifier("x");
 b.callExpression(b.identifier("f"), [b.numericLiteral(1)]);
@@ -144,7 +150,8 @@ rewrite, and print back to source.
 ```ts
 import { parse } from "yuku-parser";
 import { print } from "yuku-codegen";
-import { walk, is, b } from "yuku-walk";
+import { is, b } from "yuku-ast";
+import { walk } from "yuku-ast/walk";
 
 const { program } = parse("const x = 1; debugger; foo(x, 2);");
 
@@ -169,7 +176,8 @@ console.log(print(program).code);
 and passes compose: run as many as you like, then print once.
 
 ```ts
-import { walk, b, type Visitors } from "yuku-walk";
+import { b } from "yuku-ast";
+import { walk, type Visitors } from "yuku-ast/walk";
 
 const stripDebugger: Visitors = {
   DebuggerStatement: (_node, path) => path.remove(),
@@ -199,7 +207,7 @@ depth-first order. Reach for it only when a visitor must await I/O; `walk` is
 faster otherwise.
 
 ```ts
-import { walkAsync } from "yuku-walk";
+import { walkAsync } from "yuku-ast/walk";
 
 await walkAsync(program, {
   async ImportDeclaration(node, path) {
@@ -207,6 +215,30 @@ await walkAsync(program, {
   },
 });
 ```
+
+## Identifiers
+
+Identifier and reserved-word helpers for raw strings and code points.
+
+```ts
+import { isIdentifierName, isValidIdentifier } from "yuku-ast/identifier";
+
+isIdentifierName("π"); // true  - a well-formed IdentifierName
+isIdentifierName("class"); // true  - purely syntactic, keywords included
+isValidIdentifier("class"); // false - rejects reserved words (use for bindings)
+isValidIdentifier("π"); // true
+```
+
+| Function                                         | Checks                                                                    |
+| ------------------------------------------------ | ------------------------------------------------------------------------- |
+| `isIdentifierName(name)`                         | `name` is a syntactically valid `IdentifierName`                          |
+| `isValidIdentifier(name, reserved?)`             | a valid binding name; rejects reserved words unless `reserved` is `false` |
+| `isIdentifierStart(cp)` / `isIdentifierChar(cp)` | a code point may start / continue an identifier                           |
+| `isKeyword(word)`                                | `word` is a core grammar keyword (`if`, `class`, …)                       |
+| `isReservedWord(word, inModule?)`                | reserved everywhere (`enum`; `await` in modules)                          |
+| `isStrictReservedWord(word, inModule?)`          | also reserved in strict mode (`let`, `yield`, …)                          |
+| `isStrictBindOnlyReservedWord(word)`             | `eval` / `arguments`                                                      |
+| `isStrictBindReservedWord(word, inModule?)`      | strict reserved, plus `eval` / `arguments`                                |
 
 ## Performance
 

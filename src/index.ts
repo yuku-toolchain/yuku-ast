@@ -1,22 +1,13 @@
 /**
- * A fast, type-safe AST walker for the yuku-parser ESTree / TypeScript-ESTree AST.
+ * Node builders (`b`) and type guards (`is`) for the yuku-parser
+ * ESTree / TypeScript-ESTree AST.
+ *
+ * The walker lives at `yuku-ast/walk`; identifier and reserved-word validators
+ * live at `yuku-ast/identifier`.
  */
 
-export { walk } from "./walk";
-export { walkAsync } from "./walk-async";
 export { is } from "./predicates";
 export { b } from "./builders";
 
 export type { AliasMap, AliasName } from "./aliases";
-export type {
-  AsyncVisitFn,
-  AsyncVisitor,
-  AsyncVisitors,
-  ChildKeys,
-  NodeType,
-  NodeOfType,
-  Path,
-  VisitFn,
-  Visitor,
-  Visitors,
-} from "./types";
+export type { NodeOfType, NodeType } from "./types";

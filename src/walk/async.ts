@@ -1,31 +1,35 @@
 import type { Node } from "yuku-parser";
-import type { Visitors } from "./types";
-import { type Handler, NodePath, REMOVED, WalkerCore, fieldsOf } from "./walk-core";
+import type { AsyncVisitors } from "../types";
+import { type Handler, NodePath, REMOVED, WalkerCore, fieldsOf } from "./core";
 
-class Walker<S> extends WalkerCore<S> {
-  run(root: Node): Node {
-    const result = this.visit(null, null, root, null, null);
+class AsyncWalker<S> extends WalkerCore<S> {
+  async run(root: Node): Promise<Node> {
+    const result = await this.visit(null, null, root, null, null);
     return result === REMOVED ? root : result;
   }
 
-  private apply(handlers: readonly Handler<S>[], node: Node, path: NodePath<S>): Node {
+  private async apply(
+    handlers: readonly Handler<S>[],
+    node: Node,
+    path: NodePath<S>,
+  ): Promise<Node> {
     this.removeFlag = false;
     for (let i = 0; i < handlers.length; i++) {
       this.replacement = null;
-      handlers[i]!(node, path);
+      await handlers[i]!(node, path);
       if (this.replacement !== null) node = this.replacement;
       if (this.removeFlag || this.stopFlag) break;
     }
     return node;
   }
 
-  private visit(
+  private async visit(
     parentPath: NodePath<S> | null,
     parent: Node | null,
     node: Node,
     key: string | null,
     index: number | null,
-  ): Node | typeof REMOVED {
+  ): Promise<Node | typeof REMOVED> {
     if (this.stopFlag) return node;
 
     const path = this.newPath(parentPath, parent, node, key, index);
@@ -34,7 +38,7 @@ class Walker<S> extends WalkerCore<S> {
 
     if (dispatch.enter.length > 0) {
       const before = node;
-      node = this.apply(dispatch.enter, node, path);
+      node = await this.apply(dispatch.enter, node, path);
       if (this.removeFlag) return REMOVED;
       if (this.stopFlag) return node;
       // A replacement may be a different type with different children and handlers.
@@ -42,12 +46,12 @@ class Walker<S> extends WalkerCore<S> {
     }
 
     if (!this.skipFlag && dispatch.keys.length > 0) {
-      this.descend(path, node, dispatch.keys);
+      await this.descend(path, node, dispatch.keys);
       if (this.stopFlag) return node;
     }
 
     if (dispatch.leave.length > 0) {
-      node = this.apply(dispatch.leave, node, path);
+      node = await this.apply(dispatch.leave, node, path);
       if (this.removeFlag) return REMOVED;
       if (this.stopFlag) return node;
     }
@@ -55,7 +59,7 @@ class Walker<S> extends WalkerCore<S> {
     return node;
   }
 
-  private descend(path: NodePath<S>, node: Node, keys: readonly string[]): void {
+  private async descend(path: NodePath<S>, node: Node, keys: readonly string[]): Promise<void> {
     const fields = fieldsOf(node);
     for (let k = 0; k < keys.length; k++) {
       const key = keys[k]!;
@@ -67,7 +71,7 @@ class Walker<S> extends WalkerCore<S> {
           const child = value[i] as Node | null;
           if (child == null) continue;
           const before = value.length;
-          if (this.visit(path, node, child, key, i) === REMOVED) {
+          if ((await this.visit(path, node, child, key, i)) === REMOVED) {
             value.splice(i, 1);
             i--;
           } else {
@@ -76,7 +80,8 @@ class Walker<S> extends WalkerCore<S> {
           if (this.stopFlag) return;
         }
       } else {
-        if (this.visit(path, node, value as Node, key, null) === REMOVED) fields[key] = null;
+        if ((await this.visit(path, node, value as Node, key, null)) === REMOVED)
+          fields[key] = null;
         if (this.stopFlag) return;
       }
     }
@@ -84,25 +89,17 @@ class Walker<S> extends WalkerCore<S> {
 }
 
 /**
- * Walk an AST depth first, dispatching to typed visitors and mutating in place.
+ * Like {@link walk}, but visitors may be `async`. Handlers are awaited one at a
+ * time in depth-first order, so mutation behaves exactly as in the sync walk.
+ * Reach for this only when a visitor needs to await I/O; prefer {@link walk}
+ * otherwise, as awaiting has per-node overhead.
  *
- * @param root     The node to start from, usually a `Program`.
- * @param visitors Handlers keyed by node `type`, alias group, or `enter`/`leave`.
- * @param state    Optional value exposed as `path.state` throughout the walk.
- * @returns The root node, or its replacement if the root was replaced.
- *
- * @example
- * ```ts
- * walk(program, {
- *   Identifier(node) {
- *     console.log(node.name);
- *   },
- *   CallExpression(node, path) {
- *     if (node.callee.type === "MemberExpression") path.skip();
- *   },
- * });
- * ```
+ * @returns A promise of the root node, or its replacement if the root was replaced.
  */
-export function walk<T extends Node, S = unknown>(root: T, visitors: Visitors<S>, state?: S): T {
-  return new Walker<S>(visitors, state as S).run(root) as T;
+export function walkAsync<T extends Node, S = unknown>(
+  root: T,
+  visitors: AsyncVisitors<S>,
+  state?: S,
+): Promise<T> {
+  return new AsyncWalker<S>(visitors, state as S).run(root) as Promise<T>;
 }
