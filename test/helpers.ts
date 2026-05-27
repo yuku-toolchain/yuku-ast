@@ -24,3 +24,18 @@ export function render(result: ParseResult): string {
   }
   return code;
 }
+
+export function renderProgram(program: Program): string {
+  return render({
+    program,
+    comments: [],
+    diagnostics: [],
+    lineStarts: [],
+    locOf() {
+      return {
+        line: 0,
+        column: 0,
+      };
+    },
+  });
+}
