@@ -441,7 +441,7 @@ export const b = {
       ...span,
     };
   },
-  blockStatement(body: t.Statement[] = []): t.BlockStatement {
+  blockStatement(body: Array<t.Statement | t.Directive> = []): t.BlockStatement {
     return { type: "BlockStatement", body, ...span };
   },
   emptyStatement(): t.EmptyStatement {
@@ -1033,7 +1033,7 @@ export const b = {
       ...span,
     };
   },
-  tsModuleBlock(body: t.Statement[] = []): t.TSModuleBlock {
+  tsModuleBlock(body: t.ProgramStatement[] = []): t.TSModuleBlock {
     return { type: "TSModuleBlock", body, ...span };
   },
   tsParameterProperty(
@@ -1149,7 +1149,7 @@ export const b = {
     return { type: "Hashbang", value, ...span };
   },
   program(
-    body: Array<t.Statement | t.ModuleDeclaration | t.Directive> = [],
+    body: t.ProgramStatement[] = [],
     opts: { sourceType?: t.ModuleKind; hashbang?: t.Hashbang | null } = {},
   ): t.Program {
     return {

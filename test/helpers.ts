@@ -24,14 +24,3 @@ export function render(result: ParseResult): string {
   }
   return code;
 }
-
-/** Render a synthetically built `Program` to source, asserting clean codegen. */
-export function renderProgram(prog: Program): string {
-  const result: ParseResult = {
-    program: prog,
-    diagnostics: [],
-    lineStarts: [0],
-    locOf: () => ({ line: 1, column: 0 }),
-  };
-  return render(result);
-}
