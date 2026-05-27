@@ -1,7 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import type { Identifier, Node } from "yuku-parser";
-import { is } from "../src/index";
-import { walk } from "../src/walk";
+import { is, walk } from "../src/index";
 import { program } from "./helpers";
 
 /** First node matching the guard while walking the source, typed as that guard's node. */

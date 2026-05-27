@@ -1,6 +1,6 @@
 /**
  * The AST walker: depth-first traversal with typed visitors and in-place
- * mutation. Exposed as the `yuku-ast/walk` entry point.
+ * mutation. Re-exported from the package root (`yuku-ast`).
  */
 
 export { walk } from "./sync";

@@ -30,7 +30,6 @@
   "exports": {
     ".": "./dist/index.mjs",
     "./identifier": "./dist/identifier.mjs",
-    "./walk": "./dist/walk.mjs",
     "./package.json": "./package.json"
   },
   "scripts": {

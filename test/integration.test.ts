@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
+import { walk, walkAsync } from "../src/index";
 import type { Node } from "yuku-parser";
-import { walk, walkAsync } from "../src/walk";
 import { parseOk, program, render } from "./helpers";
 
 // A broad TS + JSX program exercising most of the node types the walker knows.

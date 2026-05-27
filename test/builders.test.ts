@@ -1,6 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { b, is } from "../src/index";
-import { walk } from "../src/walk";
+import { b, is, walk } from "../src/index";
 import { renderProgram } from "./helpers";
 
 describe("builders: span", () => {

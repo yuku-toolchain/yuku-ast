@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
+import { walk } from "../src/index";
 import type { Node } from "yuku-parser";
-import { walk } from "../src/walk";
 import { program } from "./helpers";
 
 describe("path: position", () => {

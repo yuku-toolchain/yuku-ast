@@ -3,17 +3,14 @@
 A fast, fully typed AST toolkit for [`yuku-parser`](https://www.npmjs.com/package/yuku-parser):
 node builders, type guards, a walker, and identifier validators. No runtime dependencies.
 
-The package is split into three entry points so you only pull in what you use:
-
-| Import                | Provides                                          |
-| --------------------- | ------------------------------------------------- |
-| `yuku-ast`            | `b` (node builders), `is` (type guards)           |
-| `yuku-ast/walk`       | `walk`, `walkAsync`, and the visitor / path types |
-| `yuku-ast/identifier` | identifier and reserved-word validators           |
+| Import                | Provides                                                     |
+| --------------------- | ------------------------------------------------------------ |
+| `yuku-ast`            | `walk`, `walkAsync`, `b` (node builders), `is` (type guards) |
+| `yuku-ast/identifier` | identifier and reserved-word validators                      |
 
 ```ts
 import { parse } from "yuku-parser";
-import { walk } from "yuku-ast/walk";
+import { walk } from "yuku-ast";
 
 const { program } = parse("const greet = (name) => `hi ${name}`;");
 
@@ -150,8 +147,7 @@ rewrite, and print back to source.
 ```ts
 import { parse } from "yuku-parser";
 import { print } from "yuku-codegen";
-import { is, b } from "yuku-ast";
-import { walk } from "yuku-ast/walk";
+import { is, b, walk } from "yuku-ast";
 
 const { program } = parse("const x = 1; debugger; foo(x, 2);");
 
@@ -176,8 +172,7 @@ console.log(print(program).code);
 and passes compose: run as many as you like, then print once.
 
 ```ts
-import { b } from "yuku-ast";
-import { walk, type Visitors } from "yuku-ast/walk";
+import { b, walk, type Visitors } from "yuku-ast";
 
 const stripDebugger: Visitors = {
   DebuggerStatement: (_node, path) => path.remove(),
@@ -207,7 +202,7 @@ depth-first order. Reach for it only when a visitor must await I/O; `walk` is
 faster otherwise.
 
 ```ts
-import { walkAsync } from "yuku-ast/walk";
+import { walkAsync } from "yuku-ast";
 
 await walkAsync(program, {
   async ImportDeclaration(node, path) {
