@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import type { Identifier, Node } from "yuku-parser";
+import type { AliasName } from "../src/index";
 import { is, walk } from "../src/index";
 import { program } from "./helpers";
 
@@ -36,15 +37,52 @@ describe("is: concrete guards", () => {
   });
 
   test("every guard rejects null and undefined", () => {
-    for (const guard of Object.values(is)) {
+    // Each guard short-circuits on a nullish node before reading any further
+    // argument, so a node-only call is safe for the few that take extras.
+    for (const guard of Object.values(is) as Array<(node: Node | null | undefined) => boolean>) {
       expect(guard(null)).toBe(false);
       expect(guard(undefined)).toBe(false);
     }
   });
 });
 
+describe("is: oneOf", () => {
+  test("matches any type in the list and narrows to the union", () => {
+    const node: Node = find("f(x);", is.CallExpression);
+    expect(is.oneOf(node, ["CallExpression", "NewExpression"])).toBe(true);
+    expect(is.oneOf(node, ["Identifier", "Literal"])).toBe(false);
+    if (is.oneOf(node, ["CallExpression", "NewExpression"])) {
+      // narrowed to CallExpression | NewExpression: `callee` is common to both.
+      expect(node.callee.type).toBe("Identifier");
+    }
+  });
+
+  test("an empty list matches nothing, and null/undefined are safe", () => {
+    const node = find("a;", is.Identifier);
+    expect(is.oneOf(node, [])).toBe(false);
+    expect(is.oneOf(null, ["Identifier"])).toBe(false);
+    expect(is.oneOf(undefined, ["Identifier"])).toBe(false);
+  });
+});
+
+describe("is: Identifier with a name", () => {
+  test("matches only the given name, and narrows", () => {
+    const node: Node = find("foo;", is.Identifier);
+    expect(is.Identifier(node)).toBe(true);
+    expect(is.Identifier(node, "foo")).toBe(true);
+    expect(is.Identifier(node, "bar")).toBe(false);
+    if (is.Identifier(node, "foo")) expect(node.kind).toBe("reference");
+  });
+
+  test("a non-Identifier never matches, with or without a name", () => {
+    const call = find("f(x);", is.CallExpression);
+    expect(is.Identifier(call, "f")).toBe(false);
+    expect(is.Identifier(null, "f")).toBe(false);
+  });
+});
+
 describe("is: alias guards", () => {
-  const cases: Array<[keyof typeof is, string, string, "ts" | "tsx"]> = [
+  const cases: Array<[AliasName, string, string, "ts" | "tsx"]> = [
     ["Expression", "a;", "Identifier", "ts"],
     ["Statement", "if (a) b;", "IfStatement", "ts"],
     ["Declaration", "function f() {}", "FunctionDeclaration", "ts"],

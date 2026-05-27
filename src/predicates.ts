@@ -4,6 +4,7 @@ import type {
   BooleanLiteral,
   ComputedMemberExpression,
   Directive,
+  Identifier,
   IdentifierName,
   IdentifierReference,
   LabelIdentifier,
@@ -38,6 +39,14 @@ const concrete = Object.fromEntries(
 
 export const is = {
   ...concrete,
+
+  /** True when `node`'s `type` is one of `types`, narrowing to that union. */
+  oneOf: <const K extends NodeType>(node: MaybeNode, types: readonly K[]): node is NodeOfType<K> =>
+    node != null && (types as readonly NodeType[]).includes(node.type),
+
+  /** An `Identifier`, optionally with the exact `name` (e.g. `is.Identifier(node, "this")`). */
+  Identifier: (node: MaybeNode, name?: string): node is Identifier =>
+    node?.type === "Identifier" && (name === undefined || node.name === name),
 
   Expression: aliasGuard("Expression"),
   Statement: aliasGuard("Statement"),

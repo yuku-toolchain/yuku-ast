@@ -6,6 +6,7 @@ node builders, type guards, a walker, and identifier validators. No runtime depe
 | Import                | Provides                                                     |
 | --------------------- | ------------------------------------------------------------ |
 | `yuku-ast`            | `walk`, `walkAsync`, `b` (node builders), `is` (type guards) |
+| `yuku-ast/utils`      | node utilities such as `nameOf`                              |
 | `yuku-ast/identifier` | identifier and reserved-word validators                      |
 
 ```ts
@@ -114,11 +115,40 @@ is.StringLiteral(node); // Literal variants
 is.StaticMemberExpression(node); // MemberExpression variants
 is.BindingIdentifier(node); // Identifier roles, via `kind`
 
+is.Identifier(node, "this"); // an Identifier with that exact name
+is.oneOf(node, ["CallExpression", "NewExpression"]); // any of these types
+
 walk(program, {
   Literal(node, path) {
     if (is.ArrayExpression(path.parent)) {
       // path.parent is narrowed to ArrayExpression
     }
+  },
+});
+```
+
+`is.oneOf(node, types)` narrows to the union of the listed types, and
+`is.Identifier(node, name?)` narrows to `Identifier`. Both accept `null` or
+`undefined`.
+
+## Reading names (`nameOf`)
+
+`nameOf(node)` returns the static name a node denotes, an `Identifier`'s `name`
+or a string `Literal`'s `value`, and `null` for anything else (including `null`
+or `undefined`). It reads the common `Identifier | StringLiteral` slots, such as
+a `ModuleExportName` or a static property or member key, in one call.
+
+```ts
+import { walk } from "yuku-ast";
+import { nameOf } from "yuku-ast/utils";
+
+walk(program, {
+  ExportSpecifier(node) {
+    // `export { x as y }` and `export { x as "z" }` both resolve.
+    nameOf(node.exported); // "y", "z"
+  },
+  Property(node) {
+    if (!node.computed) nameOf(node.key); // static key name, else null
   },
 });
 ```

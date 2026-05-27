@@ -3,7 +3,8 @@
  * typed walker (`walk` / `walkAsync`), node builders (`b`), and type guards
  * (`is`).
  *
- * Identifier and reserved-word validators live at `yuku-ast/identifier`.
+ * Node utilities such as `nameOf` live at `yuku-ast/utils`. Identifier and
+ * reserved-word validators live at `yuku-ast/identifier`.
  */
 
 export { is } from "./predicates";

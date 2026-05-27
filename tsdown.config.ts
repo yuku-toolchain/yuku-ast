@@ -4,6 +4,7 @@ export default defineConfig({
   entry: {
     index: "src/index.ts",
     identifier: "src/identifier/index.ts",
+    utils: "src/utils/index.ts",
   },
   dts: true,
   exports: true,
