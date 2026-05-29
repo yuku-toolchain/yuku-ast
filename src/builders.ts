@@ -9,14 +9,13 @@ export const b = {
   // Identifiers and literals
   identifier(
     name: string,
-    kind: t.IdentifierKind = "reference",
     opts: {
       typeAnnotation?: t.TSTypeAnnotation | null;
       optional?: boolean;
       decorators?: t.Decorator[];
     } = {},
   ): t.Identifier {
-    return { type: "Identifier", name, kind, ...opts, ...span };
+    return { type: "Identifier", name, ...opts, ...span };
   },
   privateIdentifier(name: string): t.PrivateIdentifier {
     return { type: "PrivateIdentifier", name, ...span };
@@ -218,8 +217,8 @@ export const b = {
   metaProperty(meta: string, property: string): t.MetaProperty {
     return {
       type: "MetaProperty",
-      meta: b.identifier(meta, "name"),
-      property: b.identifier(property, "name"),
+      meta: b.identifier(meta),
+      property: b.identifier(property),
       ...span,
     };
   },

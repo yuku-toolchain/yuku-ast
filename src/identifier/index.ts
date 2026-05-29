@@ -32,10 +32,7 @@ export function isIdentifierChar(cp: number): boolean {
 
 /**
  * Returns `true` if `name` is a valid ECMAScript `IdentifierName`: the grammar
- * an identifier token must satisfy.
- *
- * Unlike the `is.IdentifierName` node guard, this validates a raw string rather
- * than an AST node.
+ * an identifier token must satisfy. Validates a raw string, not an AST node.
  *
  * @example
  * isIdentifierName("foo");     // true

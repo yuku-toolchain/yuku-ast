@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import type { Identifier, Node } from "yuku-parser";
+import type { Node } from "yuku-parser";
 import type { AliasName } from "../src/index";
 import { is, walk } from "../src/index";
 import { program } from "./helpers";
@@ -71,7 +71,7 @@ describe("is: Identifier with a name", () => {
     expect(is.Identifier(node)).toBe(true);
     expect(is.Identifier(node, "foo")).toBe(true);
     expect(is.Identifier(node, "bar")).toBe(false);
-    if (is.Identifier(node, "foo")) expect(node.kind).toBe("reference");
+    if (is.Identifier(node, "foo")) expect(node.name).toBe("foo");
   });
 
   test("a non-Identifier never matches, with or without a name", () => {
@@ -136,29 +136,6 @@ describe("is: Literal variants", () => {
   test("RegExpLiteral", () => {
     expect(is.RegExpLiteral(literal("/ab/g;"))).toBe(true);
     expect(is.RegExpLiteral(literal('"ab";'))).toBe(false);
-  });
-});
-
-describe("is: Identifier roles", () => {
-  const code = "let b = ref; obj.prop; foo: while (0) break foo;";
-  const byKind = (kind: string) =>
-    find(code, (n): n is Identifier => n.type === "Identifier" && n.kind === kind);
-
-  test("BindingIdentifier", () => {
-    expect(is.BindingIdentifier(byKind("binding"))).toBe(true);
-    expect(is.BindingIdentifier(byKind("reference"))).toBe(false);
-  });
-  test("IdentifierReference", () => {
-    expect(is.IdentifierReference(byKind("reference"))).toBe(true);
-    expect(is.IdentifierReference(byKind("binding"))).toBe(false);
-  });
-  test("IdentifierName", () => {
-    expect(is.IdentifierName(byKind("name"))).toBe(true);
-    expect(is.IdentifierName(byKind("reference"))).toBe(false);
-  });
-  test("LabelIdentifier", () => {
-    expect(is.LabelIdentifier(byKind("label"))).toBe(true);
-    expect(is.LabelIdentifier(byKind("name"))).toBe(false);
   });
 });
 

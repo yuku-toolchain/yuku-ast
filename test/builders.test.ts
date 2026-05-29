@@ -7,33 +7,27 @@ describe("builders: span", () => {
     const prog = b.program([
       b.variableDeclaration("const", [
         b.variableDeclarator(
-          b.arrayPattern([
-            b.identifier("a", "binding"),
-            b.restElement(b.identifier("rest", "binding")),
-          ]),
+          b.arrayPattern([b.identifier("a"), b.restElement(b.identifier("rest"))]),
           b.objectExpression([
             b.objectProperty(
-              b.identifier("a", "name"),
+              b.identifier("a"),
               b.arrayExpression([b.numericLiteral(1), b.stringLiteral("s")]),
             ),
           ]),
         ),
       ]),
       b.functionDeclaration(
-        b.identifier("f", "binding"),
-        [b.identifier("x", "binding")],
+        b.identifier("f"),
+        [b.identifier("x")],
         b.blockStatement([
           b.returnStatement(b.binaryExpression("+", b.identifier("x"), b.numericLiteral(1))),
         ]),
       ),
       b.classDeclaration(
-        b.identifier("C", "binding"),
+        b.identifier("C"),
         b.classBody([
-          b.methodDefinition(
-            b.identifier("m", "name"),
-            b.functionExpression([], b.blockStatement([])),
-          ),
-          b.propertyDefinition(b.identifier("p", "name"), b.numericLiteral(0)),
+          b.methodDefinition(b.identifier("m"), b.functionExpression([], b.blockStatement([]))),
+          b.propertyDefinition(b.identifier("p"), b.numericLiteral(0)),
         ]),
       ),
     ]);
@@ -55,17 +49,17 @@ describe("builders: round-trip through codegen", () => {
     const prog = b.program([
       b.variableDeclaration("const", [
         b.variableDeclarator(
-          b.identifier("x", "binding"),
+          b.identifier("x"),
           b.binaryExpression("+", b.numericLiteral(1), b.numericLiteral(2)),
         ),
       ]),
       b.functionDeclaration(
-        b.identifier("f", "binding"),
-        [b.identifier("a", "binding")],
+        b.identifier("f"),
+        [b.identifier("a")],
         b.blockStatement([b.returnStatement(b.identifier("a"))]),
       ),
       b.expressionStatement(
-        b.callExpression(b.memberExpression(b.identifier("console"), b.identifier("log", "name")), [
+        b.callExpression(b.memberExpression(b.identifier("console"), b.identifier("log")), [
           b.stringLiteral("hi"),
         ]),
       ),
@@ -84,7 +78,7 @@ describe("builders: round-trip through codegen", () => {
       ),
       b.forStatement(
         b.variableDeclaration("let", [
-          b.variableDeclarator(b.identifier("i", "binding"), b.numericLiteral(0)),
+          b.variableDeclarator(b.identifier("i"), b.numericLiteral(0)),
         ]),
         b.binaryExpression("<", b.identifier("i"), b.numericLiteral(10)),
         b.updateExpression("++", b.identifier("i"), false),
@@ -99,7 +93,7 @@ describe("builders: round-trip through codegen", () => {
   test("TypeScript constructs print correctly", () => {
     const prog = b.program([
       b.tsTypeAliasDeclaration(
-        b.identifier("T", "binding"),
+        b.identifier("T"),
         b.tsUnionType([b.tsStringKeyword(), b.tsNumberKeyword()]),
       ),
     ]);
@@ -112,11 +106,11 @@ describe("builders: round-trip through codegen", () => {
         b.variableDeclarator(
           b.objectPattern([
             // shorthand `{ a }` and renamed `{ b: c }`
-            b.bindingProperty(b.identifier("a", "name"), b.identifier("a", "binding"), {
+            b.bindingProperty(b.identifier("a"), b.identifier("a"), {
               shorthand: true,
             }),
-            b.bindingProperty(b.identifier("b", "name"), b.identifier("c", "binding")),
-            b.restElement(b.identifier("rest", "binding")),
+            b.bindingProperty(b.identifier("b"), b.identifier("c")),
+            b.restElement(b.identifier("rest")),
           ]),
           b.identifier("source"),
         ),
@@ -128,7 +122,7 @@ describe("builders: round-trip through codegen", () => {
 
 describe("builders: Property variants", () => {
   test("objectProperty builds an ObjectExpression member with kind init", () => {
-    const node = b.objectProperty(b.identifier("k", "name"), b.numericLiteral(1));
+    const node = b.objectProperty(b.identifier("k"), b.numericLiteral(1));
     expect(node.type).toBe("Property");
     expect(node.kind).toBe("init");
     expect(node.method).toBe(false);
@@ -136,7 +130,7 @@ describe("builders: Property variants", () => {
 
   test("objectProperty supports accessor kinds for getters and setters", () => {
     const getter = b.objectProperty(
-      b.identifier("g", "name"),
+      b.identifier("g"),
       b.functionExpression([], b.blockStatement([b.returnStatement(b.numericLiteral(1))])),
       { kind: "get" },
     );
@@ -144,7 +138,7 @@ describe("builders: Property variants", () => {
   });
 
   test("bindingProperty is fixed to kind init and method false", () => {
-    const node = b.bindingProperty(b.identifier("k", "name"), b.identifier("v", "binding"));
+    const node = b.bindingProperty(b.identifier("k"), b.identifier("v"));
     expect(node.type).toBe("Property");
     expect(node.kind).toBe("init");
     expect(node.method).toBe(false);
@@ -153,10 +147,10 @@ describe("builders: Property variants", () => {
 
 describe("builders: computed-key inference", () => {
   test("an Identifier key is not computed", () => {
-    expect(b.objectProperty(b.identifier("a", "name"), b.numericLiteral(1)).computed).toBe(false);
-    expect(b.memberExpression(b.identifier("o"), b.identifier("p", "name")).computed).toBe(false);
+    expect(b.objectProperty(b.identifier("a"), b.numericLiteral(1)).computed).toBe(false);
+    expect(b.memberExpression(b.identifier("o"), b.identifier("p")).computed).toBe(false);
     expect(
-      b.methodDefinition(b.identifier("m", "name"), b.functionExpression([], b.blockStatement([])))
+      b.methodDefinition(b.identifier("m"), b.functionExpression([], b.blockStatement([])))
         .computed,
     ).toBe(false);
   });
@@ -174,7 +168,7 @@ describe("builders: computed-key inference", () => {
 
   test("an explicit computed option overrides inference", () => {
     expect(
-      b.objectProperty(b.identifier("a", "name"), b.numericLiteral(1), { computed: true }).computed,
+      b.objectProperty(b.identifier("a"), b.numericLiteral(1), { computed: true }).computed,
     ).toBe(true);
     expect(
       b.objectProperty(b.stringLiteral("a"), b.numericLiteral(1), { computed: false }).computed,
@@ -189,7 +183,7 @@ describe("builders: defaults and derived fields", () => {
   });
 
   test("function-like builders default async and generator to false", () => {
-    const fn = b.functionDeclaration(b.identifier("f", "binding"), [], b.blockStatement([]));
+    const fn = b.functionDeclaration(b.identifier("f"), [], b.blockStatement([]));
     expect(fn.async).toBe(false);
     expect(fn.generator).toBe(false);
     const arrow = b.arrowFunctionExpression([], b.blockStatement([]));
@@ -219,7 +213,7 @@ describe("builders: defaults and derived fields", () => {
   });
 
   test("classDeclaration defaults decorators, superClass, and implements", () => {
-    const cls = b.classDeclaration(b.identifier("C", "binding"), b.classBody([]));
+    const cls = b.classDeclaration(b.identifier("C"), b.classBody([]));
     expect(cls.decorators).toEqual([]);
     expect(cls.superClass).toBeNull();
   });
@@ -283,23 +277,10 @@ describe("builders: literals", () => {
 });
 
 describe("builders: identifiers", () => {
-  test("identifier defaults to a reference kind", () => {
-    expect(b.identifier("x").kind).toBe("reference");
-    expect(is.IdentifierReference(b.identifier("x"))).toBe(true);
-  });
-
-  test("identifier kind is configurable", () => {
-    expect(is.BindingIdentifier(b.identifier("x", "binding"))).toBe(true);
-    expect(is.LabelIdentifier(b.identifier("x", "label"))).toBe(true);
-    expect(is.IdentifierName(b.identifier("x", "name"))).toBe(true);
-  });
-
-  test("metaProperty builds name-kind identifiers for meta and property", () => {
+  test("metaProperty builds identifiers for meta and property", () => {
     const node = b.metaProperty("import", "meta");
     expect(node.meta.name).toBe("import");
-    expect(node.meta.kind).toBe("name");
     expect(node.property.name).toBe("meta");
-    expect(node.property.kind).toBe("name");
   });
 });
 

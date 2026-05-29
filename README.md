@@ -113,7 +113,6 @@ is.CallExpression(node); // every concrete type
 is.Expression(node); // families
 is.StringLiteral(node); // Literal variants
 is.StaticMemberExpression(node); // MemberExpression variants
-is.BindingIdentifier(node); // Identifier roles, via `kind`
 
 is.Identifier(node, "this"); // an Identifier with that exact name
 is.oneOf(node, ["CallExpression", "NewExpression"]); // any of these types

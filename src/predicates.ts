@@ -1,13 +1,9 @@
 import type {
   BigIntLiteral,
-  BindingIdentifier,
   BooleanLiteral,
   ComputedMemberExpression,
   Directive,
   Identifier,
-  IdentifierName,
-  IdentifierReference,
-  LabelIdentifier,
   Node,
   NullLiteral,
   NumericLiteral,
@@ -59,15 +55,6 @@ export const is = {
   Pattern: aliasGuard("Pattern"),
   JSX: aliasGuard("JSX"),
   TSType: aliasGuard("TSType"),
-
-  IdentifierReference: (node: MaybeNode): node is IdentifierReference =>
-    node?.type === "Identifier" && node.kind === "reference",
-  BindingIdentifier: (node: MaybeNode): node is BindingIdentifier =>
-    node?.type === "Identifier" && node.kind === "binding",
-  LabelIdentifier: (node: MaybeNode): node is LabelIdentifier =>
-    node?.type === "Identifier" && node.kind === "label",
-  IdentifierName: (node: MaybeNode): node is IdentifierName =>
-    node?.type === "Identifier" && node.kind === "name",
 
   StringLiteral: (node: MaybeNode): node is StringLiteral =>
     node?.type === "Literal" && typeof node.value === "string",
