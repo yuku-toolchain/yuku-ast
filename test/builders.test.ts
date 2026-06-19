@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { b, is, walk } from "../src/index";
-import { renderProgram } from "./helpers";
+import { b, is } from "../src/index";
+import { allNodes, renderProgram } from "./helpers";
 
 describe("builders: span", () => {
   test("every node in a synthetically built tree carries a zero span", () => {
@@ -32,15 +32,12 @@ describe("builders: span", () => {
       ),
     ]);
 
-    let count = 0;
-    walk(prog, {
-      enter(node) {
-        count++;
-        expect(node.start).toBe(0);
-        expect(node.end).toBe(0);
-      },
-    });
-    expect(count).toBeGreaterThan(10); // sanity: the tree really was walked
+    const all = allNodes(prog);
+    expect(all.length).toBeGreaterThan(10); // sanity: the tree really was built out
+    for (const node of all) {
+      expect(node.start).toBe(0);
+      expect(node.end).toBe(0);
+    }
   });
 });
 

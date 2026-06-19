@@ -1,17 +1,15 @@
 {
   "name": "yuku-ast",
   "version": "0.1.4",
-  "description": "A fast, typed AST toolkit for yuku-parser's ESTree / TypeScript-ESTree AST: node builders, type guards, a walker, and identifier validators.",
+  "description": "A fast, typed AST toolkit for yuku-parser's ESTree / TypeScript-ESTree AST: node builders, type guards, and identifier validators.",
   "keywords": [
     "ast",
-    "codemod",
+    "builders",
     "estree",
+    "identifier",
     "javascript",
-    "transform",
-    "traverse",
+    "type-guards",
     "typescript",
-    "visitor",
-    "walker",
     "yuku"
   ],
   "homepage": "https://yuku.fyi",

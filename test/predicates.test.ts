@@ -1,27 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import type { Node } from "yuku-parser";
 import type { AliasName } from "../src/index";
-import { is, walk } from "../src/index";
-import { program } from "./helpers";
-
-/** First node matching the guard while walking the source, typed as that guard's node. */
-function find<T extends Node>(
-  code: string,
-  guard: (node: Node) => node is T,
-  lang?: "ts" | "tsx",
-): T {
-  let found: T | undefined;
-  walk(program(code, lang), {
-    enter(node, path) {
-      if (found === undefined && guard(node)) {
-        found = node;
-        path.stop();
-      }
-    },
-  });
-  if (found === undefined) throw new Error("no matching node found");
-  return found;
-}
+import { is } from "../src/index";
+import { find } from "./helpers";
 
 describe("is: concrete guards", () => {
   test("match by exact type", () => {
@@ -165,28 +146,21 @@ describe("is: Directive", () => {
 
   test("a non-directive string expression statement is not a Directive", () => {
     // Inside a function body, a trailing string expression is not a directive.
-    let nonDirective: Node | undefined;
-    walk(program('function f() { doThing(); "not a directive"; }'), {
-      ExpressionStatement(node) {
-        if (node.expression.type === "Literal") nonDirective = node;
-      },
-    });
-    expect(nonDirective).toBeDefined();
+    const nonDirective = find(
+      'function f() { doThing(); "not a directive"; }',
+      (n): n is Node => is.ExpressionStatement(n) && n.expression.type === "Literal",
+    );
     expect(is.Directive(nonDirective)).toBe(false);
   });
 });
 
-describe("is: narrowing inside a walk", () => {
-  test("a guard narrows path.parent for typed access", () => {
+describe("is: narrowing", () => {
+  test("a guard narrows a node for typed field access", () => {
+    const arr = find("[a, b];", is.ArrayExpression);
     const names: string[] = [];
-    walk(program("[a, b];"), {
-      Identifier(node, path) {
-        if (is.ArrayExpression(path.parent)) {
-          expect(path.parent.elements).toBeArray();
-          names.push(node.name);
-        }
-      },
-    });
+    for (const el of arr.elements) {
+      if (is.Identifier(el)) names.push(el.name);
+    }
     expect(names).toEqual(["a", "b"]);
   });
 });

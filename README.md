@@ -1,25 +1,25 @@
 # yuku-ast
 
 A fast, fully typed AST toolkit for [`yuku-parser`](https://www.npmjs.com/package/yuku-parser):
-node builders, type guards, a walker, and identifier validators. No runtime dependencies.
+node builders, type guards, and identifier validators. No runtime dependencies.
 
-| Import                | Provides                                                     |
-| --------------------- | ------------------------------------------------------------ |
-| `yuku-ast`            | `walk`, `walkAsync`, `b` (node builders), `is` (type guards) |
-| `yuku-ast/utils`      | node utilities such as `nameOf`                              |
-| `yuku-ast/identifier` | identifier and reserved-word validators                      |
+| Import                | Provides                                       |
+| --------------------- | ---------------------------------------------- |
+| `yuku-ast`            | `b` (node builders), `is` (type guards)        |
+| `yuku-ast/utils`      | node utilities such as `nameOf`                |
+| `yuku-ast/identifier` | identifier and reserved-word validators        |
 
 ```ts
 import { parse } from "yuku-parser";
-import { walk } from "yuku-ast";
+import { b, is } from "yuku-ast";
 
-const { program } = parse("const greet = (name) => `hi ${name}`;");
+const { program } = parse("const greet = 1;");
 
-walk(program, {
-  Identifier(node) {
-    console.log(node.name); // greet, name, name
-  },
-});
+const decl = program.body[0];
+if (is.VariableDeclaration(decl)) {
+  // `decl` is narrowed; swap the initializer for a freshly built node.
+  decl.declarations[0].init = b.numericLiteral(42);
+}
 ```
 
 ## Install
@@ -29,77 +29,6 @@ bun add yuku-ast yuku-parser
 ```
 
 `yuku-parser` is a peer dependency.
-
-## Visitors
-
-A visitor is keyed by node `type`, by an alias group, or by the universal
-`enter` / `leave`. Each handler receives the typed node and a [`path`](#the-path).
-
-```ts
-walk(program, {
-  // a concrete node type, `node` is precisely typed
-  CallExpression(node, path) {
-    if (path.parent?.type === "AwaitExpression") return;
-  },
-
-  // an alias group fires for a whole family
-  Function(node) {
-    node.params; // FunctionDeclaration | FunctionExpression | ArrowFunctionExpression | ...
-  },
-
-  // enter/leave for any node type
-  MemberExpression: {
-    enter(node) {},
-    leave(node) {},
-  },
-
-  // run for every node
-  enter(node) {},
-  leave(node) {},
-});
-```
-
-Aliases: `Expression`, `Statement`, `Declaration`, `ModuleDeclaration`,
-`Function`, `Class`, `Method`, `Loop`, `Pattern`, `JSX`, `TSType`.
-
-When several handlers match a node, `enter` runs outermost first
-(universal, alias, concrete) and `leave` runs in reverse.
-
-## The path
-
-Every visitor receives a `path` describing where it is and how to change the tree.
-Each node has its own path, so it stays valid after the visit returns.
-
-```ts
-node: T                       // the current node
-parent: Node | null           // owner, or null at the root
-key: string | null            // field on the parent holding this node
-index: number | null          // position within an array field, else null
-ancestors: readonly Node[]    // root down to the parent
-state: S                      // value threaded through the walk
-
-skip()                        // do not descend into this node
-stop()                        // end the walk
-replace(next)                 // swap this node, then walk the replacement
-remove()                      // detach from the parent
-insertBefore(node)            // add a sibling before (array fields)
-insertAfter(node)             // add a sibling after (array fields)
-```
-
-```ts
-walk(program, {
-  DebuggerStatement(_node, path) {
-    path.remove();
-  },
-  Identifier(node, path) {
-    if (node.name === "foo") path.replace(b.identifier("bar"));
-  },
-});
-```
-
-`replace` walks into the replacement's children but does not re-run its own
-`enter`. A synthetic replacement (one built with `b.*`) inherits the replaced
-node's source span, so generated output still maps back to the original.
 
 ## Type guards (`is`)
 
@@ -116,19 +45,21 @@ is.StaticMemberExpression(node); // MemberExpression variants
 
 is.Identifier(node, "this"); // an Identifier with that exact name
 is.oneOf(node, ["CallExpression", "NewExpression"]); // any of these types
-
-walk(program, {
-  Literal(node, path) {
-    if (is.ArrayExpression(path.parent)) {
-      // path.parent is narrowed to ArrayExpression
-    }
-  },
-});
 ```
 
 `is.oneOf(node, types)` narrows to the union of the listed types, and
-`is.Identifier(node, name?)` narrows to `Identifier`. Both accept `null` or
-`undefined`.
+`is.Identifier(node, name?)` narrows to `Identifier`. A matching guard narrows the
+node for typed field access:
+
+```ts
+const element = arrayExpression.elements[0];
+if (is.Identifier(element)) {
+  element.name; // `element` is narrowed to Identifier
+}
+```
+
+Aliases: `Expression`, `Statement`, `Declaration`, `ModuleDeclaration`,
+`Function`, `Class`, `Method`, `Loop`, `Pattern`, `JSX`, `TSType`.
 
 ## Reading names (`nameOf`)
 
@@ -138,18 +69,13 @@ or `undefined`). It reads the common `Identifier | StringLiteral` slots, such as
 a `ModuleExportName` or a static property or member key, in one call.
 
 ```ts
-import { walk } from "yuku-ast";
 import { nameOf } from "yuku-ast/utils";
 
-walk(program, {
-  ExportSpecifier(node) {
-    // `export { x as y }` and `export { x as "z" }` both resolve.
-    nameOf(node.exported); // "y", "z"
-  },
-  Property(node) {
-    if (!node.computed) nameOf(node.key); // static key name, else null
-  },
-});
+// `export { x as y }` and `export { x as "z" }` both resolve.
+nameOf(specifier.exported); // "y", "z"
+
+// A static (non-computed) property key, else null.
+if (!property.computed) nameOf(property.key);
 ```
 
 ## Builders (`b`)
@@ -162,82 +88,39 @@ import { b } from "yuku-ast";
 
 b.identifier("x");
 b.callExpression(b.identifier("f"), [b.numericLiteral(1)]);
-b.arrowFunctionExpression([b.identifier("a", "binding")], b.identifier("a"));
+b.arrowFunctionExpression([b.identifier("a")], b.identifier("a"));
 b.variableDeclaration("const", [
-  b.variableDeclarator(b.identifier("x", "binding"), b.numericLiteral(0)),
+  b.variableDeclarator(b.identifier("x"), b.numericLiteral(0)),
 ]);
 ```
 
-## Transform and print
+When you assign a synthetic node in place of an existing one, copy the original's
+`start` / `end` first so [`yuku-codegen`](https://www.npmjs.com/package/yuku-codegen)
+source maps still point back to the original input.
 
-Pair it with [`yuku-codegen`](https://www.npmjs.com/package/yuku-codegen) to parse,
-rewrite, and print back to source.
+## Build and print
+
+Pair it with [`yuku-codegen`](https://www.npmjs.com/package/yuku-codegen) to print
+a built tree back to source.
 
 ```ts
-import { parse } from "yuku-parser";
 import { print } from "yuku-codegen";
-import { is, b, walk } from "yuku-ast";
+import { b } from "yuku-ast";
 
-const { program } = parse("const x = 1; debugger; foo(x, 2);");
-
-walk(program, {
-  DebuggerStatement(_node, path) {
-    path.remove();
-  },
-  Identifier(node, path) {
-    if (node.name === "foo") path.replace(b.identifier("bar"));
-  },
-  Literal(node, path) {
-    if (is.NumericLiteral(node)) path.replace(b.numericLiteral((node.value ?? 0) * 10));
-  },
-});
+const program = b.program([
+  b.variableDeclaration("const", [
+    b.variableDeclarator(b.identifier("x"), b.numericLiteral(42)),
+  ]),
+  b.expressionStatement(
+    b.callExpression(b.memberExpression(b.identifier("console"), b.identifier("log")), [
+      b.identifier("x"),
+    ]),
+  ),
+]);
 
 console.log(print(program).code);
-// const x = 10;
-// bar(x, 20);
-```
-
-`walk` edits the tree in place, so a transform is just a reusable visitor object,
-and passes compose: run as many as you like, then print once.
-
-```ts
-import { b, walk, type Visitors } from "yuku-ast";
-
-const stripDebugger: Visitors = {
-  DebuggerStatement: (_node, path) => path.remove(),
-};
-const inlineDevFlag: Visitors = {
-  Identifier(node, path) {
-    if (node.name === "__DEV__") path.replace(b.booleanLiteral(false));
-  },
-};
-
-const { program } = parse("if (__DEV__) log(); debugger; run();");
-for (const transform of [stripDebugger, inlineDevFlag]) {
-  walk(program, transform);
-}
-console.log(print(program).code);
-// if (false) log();
-// run();
-```
-
-Replacements built with `b.*` inherit the replaced node's source span, so
-`yuku-codegen` source maps still point back to the original input.
-
-## Async
-
-`walkAsync` is the same walk with awaitable visitors, run sequentially in
-depth-first order. Reach for it only when a visitor must await I/O; `walk` is
-faster otherwise.
-
-```ts
-import { walkAsync } from "yuku-ast";
-
-await walkAsync(program, {
-  async ImportDeclaration(node, path) {
-    if (!(await exists(node.source.value))) path.remove();
-  },
-});
+// const x = 42;
+// console.log(x);
 ```
 
 ## Identifiers
@@ -263,13 +146,6 @@ isValidIdentifier("π"); // true
 | `isStrictReservedWord(word, inModule?)`          | also reserved in strict mode (`let`, `yield`, …)                          |
 | `isStrictBindOnlyReservedWord(word)`             | `eval` / `arguments`                                                      |
 | `isStrictBindReservedWord(word, inModule?)`      | strict reserved, plus `eval` / `arguments`                                |
-
-## Performance
-
-The walk reads a fixed table of child fields per node type rather than reflecting
-over keys, and dispatches through a cached, per-type handler list. On a large
-TypeScript file it walks several times faster than `@babel/traverse` and on par
-with the lightest reflection walkers, while staying fully typed.
 
 ## License
 

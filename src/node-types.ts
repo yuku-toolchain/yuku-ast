@@ -1,0 +1,205 @@
+import type { NodeType } from "./types";
+
+/**
+ * Every concrete node `type` in the AST. Drives the per-type guards in `is`.
+ * The compile-time checks below keep it exhaustive: a node type added to or
+ * removed from the parser fails to build until this list is brought in line.
+ */
+export const NODE_TYPES = [
+  "Program",
+  "Hashbang",
+
+  "Identifier",
+  "PrivateIdentifier",
+  "Literal",
+  "TemplateElement",
+  "Super",
+  "ThisExpression",
+
+  "ArrayPattern",
+  "ObjectPattern",
+  "AssignmentPattern",
+  "RestElement",
+  "Property",
+
+  // Expressions
+  "SequenceExpression",
+  "ParenthesizedExpression",
+  "BinaryExpression",
+  "LogicalExpression",
+  "ConditionalExpression",
+  "UnaryExpression",
+  "UpdateExpression",
+  "AssignmentExpression",
+  "YieldExpression",
+  "AwaitExpression",
+  "ArrayExpression",
+  "ObjectExpression",
+  "SpreadElement",
+  "MemberExpression",
+  "CallExpression",
+  "ChainExpression",
+  "TaggedTemplateExpression",
+  "NewExpression",
+  "MetaProperty",
+  "ImportExpression",
+  "TemplateLiteral",
+
+  // Statements
+  "ExpressionStatement",
+  "BlockStatement",
+  "IfStatement",
+  "SwitchStatement",
+  "SwitchCase",
+  "ForStatement",
+  "ForInStatement",
+  "ForOfStatement",
+  "WhileStatement",
+  "DoWhileStatement",
+  "BreakStatement",
+  "ContinueStatement",
+  "LabeledStatement",
+  "WithStatement",
+  "ReturnStatement",
+  "ThrowStatement",
+  "TryStatement",
+  "CatchClause",
+  "DebuggerStatement",
+  "EmptyStatement",
+
+  "VariableDeclaration",
+  "VariableDeclarator",
+
+  // Functions
+  "FunctionDeclaration",
+  "FunctionExpression",
+  "TSDeclareFunction",
+  "TSEmptyBodyFunctionExpression",
+  "ArrowFunctionExpression",
+
+  // Classes
+  "ClassDeclaration",
+  "ClassExpression",
+  "ClassBody",
+  "MethodDefinition",
+  "TSAbstractMethodDefinition",
+  "PropertyDefinition",
+  "TSAbstractPropertyDefinition",
+  "AccessorProperty",
+  "TSAbstractAccessorProperty",
+  "StaticBlock",
+  "Decorator",
+
+  // Modules
+  "ImportDeclaration",
+  "ImportSpecifier",
+  "ImportDefaultSpecifier",
+  "ImportNamespaceSpecifier",
+  "ImportAttribute",
+  "ExportNamedDeclaration",
+  "ExportDefaultDeclaration",
+  "ExportAllDeclaration",
+  "ExportSpecifier",
+
+  // JSX
+  "JSXElement",
+  "JSXOpeningElement",
+  "JSXClosingElement",
+  "JSXFragment",
+  "JSXOpeningFragment",
+  "JSXClosingFragment",
+  "JSXIdentifier",
+  "JSXNamespacedName",
+  "JSXMemberExpression",
+  "JSXAttribute",
+  "JSXSpreadAttribute",
+  "JSXExpressionContainer",
+  "JSXEmptyExpression",
+  "JSXText",
+  "JSXSpreadChild",
+
+  // TypeScript: type annotation and keywords
+  "TSTypeAnnotation",
+  "TSAnyKeyword",
+  "TSUnknownKeyword",
+  "TSNeverKeyword",
+  "TSVoidKeyword",
+  "TSNullKeyword",
+  "TSUndefinedKeyword",
+  "TSStringKeyword",
+  "TSNumberKeyword",
+  "TSBigIntKeyword",
+  "TSBooleanKeyword",
+  "TSSymbolKeyword",
+  "TSObjectKeyword",
+  "TSIntrinsicKeyword",
+  "TSThisType",
+
+  // TypeScript: composite types
+  "TSTypeReference",
+  "TSQualifiedName",
+  "TSTypeQuery",
+  "TSImportType",
+  "TSTypeParameter",
+  "TSTypeParameterDeclaration",
+  "TSTypeParameterInstantiation",
+  "TSLiteralType",
+  "TSTemplateLiteralType",
+  "TSArrayType",
+  "TSIndexedAccessType",
+  "TSTupleType",
+  "TSNamedTupleMember",
+  "TSOptionalType",
+  "TSRestType",
+  "TSJSDocNullableType",
+  "TSJSDocNonNullableType",
+  "TSJSDocUnknownType",
+  "TSUnionType",
+  "TSIntersectionType",
+  "TSConditionalType",
+  "TSInferType",
+  "TSTypeOperator",
+  "TSParenthesizedType",
+  "TSFunctionType",
+  "TSConstructorType",
+  "TSTypePredicate",
+  "TSTypeLiteral",
+  "TSMappedType",
+
+  // TypeScript: signatures
+  "TSPropertySignature",
+  "TSMethodSignature",
+  "TSCallSignatureDeclaration",
+  "TSConstructSignatureDeclaration",
+  "TSIndexSignature",
+
+  // TypeScript: declarations
+  "TSTypeAliasDeclaration",
+  "TSInterfaceDeclaration",
+  "TSInterfaceBody",
+  "TSInterfaceHeritage",
+  "TSClassImplements",
+  "TSEnumDeclaration",
+  "TSEnumBody",
+  "TSEnumMember",
+  "TSModuleDeclaration",
+  "TSModuleBlock",
+  "TSParameterProperty",
+
+  // TypeScript: expressions and module statements
+  "TSAsExpression",
+  "TSSatisfiesExpression",
+  "TSTypeAssertion",
+  "TSNonNullExpression",
+  "TSInstantiationExpression",
+  "TSExportAssignment",
+  "TSNamespaceExportDeclaration",
+  "TSImportEqualsDeclaration",
+  "TSExternalModuleReference",
+] as const satisfies readonly NodeType[];
+
+// Completeness guard. The `satisfies` above rejects an unknown type string, but
+// cannot tell that one is missing; this line fails to compile when one is.
+type MissingNodeType = Exclude<NodeType, (typeof NODE_TYPES)[number]>;
+const _allNodeTypesListed: [MissingNodeType] extends [never] ? true : MissingNodeType = true;
+void _allNodeTypesListed;

@@ -1,23 +1,7 @@
 import { describe, expect, test } from "bun:test";
-import type { Node } from "yuku-parser";
-import { is, walk } from "../src/index";
+import { is } from "../src/index";
 import { nameOf } from "../src/utils";
-import { program } from "./helpers";
-
-/** First node matching the guard while walking the source. */
-function find<T extends Node>(code: string, guard: (node: Node) => node is T): T {
-  let found: T | undefined;
-  walk(program(code), {
-    enter(node, path) {
-      if (found === undefined && guard(node)) {
-        found = node;
-        path.stop();
-      }
-    },
-  });
-  if (found === undefined) throw new Error("no matching node found");
-  return found;
-}
+import { find, program } from "./helpers";
 
 describe("nameOf", () => {
   test("returns an Identifier's name", () => {
@@ -42,12 +26,10 @@ describe("nameOf", () => {
   });
 
   test("reads a renamed export's exported name (Identifier or string)", () => {
-    const names: Array<string | null> = [];
-    walk(program('const x = 1; export { x as y, x as "z" };'), {
-      ExportSpecifier(node) {
-        names.push(nameOf(node.exported));
-      },
-    });
-    expect(names).toEqual(["y", "z"]);
+    // `export { x as y, x as "z" }` resolves both an Identifier and a string name.
+    const decl = program('const x = 1; export { x as y, x as "z" };').body.find(
+      is.ExportNamedDeclaration,
+    );
+    expect(decl?.specifiers.map((s) => nameOf(s.exported))).toEqual(["y", "z"]);
   });
 });

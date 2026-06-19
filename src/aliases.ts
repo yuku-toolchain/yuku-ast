@@ -1,8 +1,8 @@
 import type { NodeOfType, NodeType } from "./types";
 
 /**
- * Node types grouped under a shared alias. A visitor registered under an alias
- * name runs for every member type. Membership is by node `type`.
+ * Node types grouped under a shared alias. Membership is by node `type`, and
+ * each group backs an alias guard such as `is.Expression` or `is.Function`.
  */
 export const ALIAS_GROUPS = {
   Expression: [

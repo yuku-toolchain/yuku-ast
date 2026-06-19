@@ -13,8 +13,8 @@ import type {
   StringLiteral,
 } from "yuku-parser";
 import { ALIAS_GROUPS, type AliasMap, type AliasName } from "./aliases";
+import { NODE_TYPES } from "./node-types";
 import type { NodeOfType, NodeType } from "./types";
-import { VISITOR_KEYS } from "./visitor-keys";
 
 type MaybeNode = Node | null | undefined;
 
@@ -27,10 +27,7 @@ function aliasGuard<K extends AliasName>(name: K): (node: MaybeNode) => node is 
 type ConcreteGuards = { [K in NodeType]: (node: MaybeNode) => node is NodeOfType<K> };
 
 const concrete = Object.fromEntries(
-  (Object.keys(VISITOR_KEYS) as NodeType[]).map((type) => [
-    type,
-    (node: MaybeNode) => node != null && node.type === type,
-  ]),
+  NODE_TYPES.map((type) => [type, (node: MaybeNode) => node != null && node.type === type]),
 ) as ConcreteGuards;
 
 export const is = {
