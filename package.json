@@ -1,6 +1,6 @@
 {
   "name": "yuku-ast",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "A fast, typed AST toolkit for yuku-parser's ESTree / TypeScript-ESTree AST: node builders, type guards, and identifier validators.",
   "keywords": [
     "ast",
