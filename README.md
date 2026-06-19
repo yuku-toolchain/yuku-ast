@@ -1,13 +1,13 @@
 # yuku-ast
 
 A fast, fully typed AST toolkit for [`yuku-parser`](https://www.npmjs.com/package/yuku-parser):
-node builders, type guards, and identifier validators. No runtime dependencies.
+node builders, type guards, and identifier validators.
 
-| Import                | Provides                                       |
-| --------------------- | ---------------------------------------------- |
-| `yuku-ast`            | `b` (node builders), `is` (type guards)        |
-| `yuku-ast/utils`      | node utilities such as `nameOf`                |
-| `yuku-ast/identifier` | identifier and reserved-word validators        |
+| Import                | Provides                                |
+| --------------------- | --------------------------------------- |
+| `yuku-ast`            | `b` (node builders), `is` (type guards) |
+| `yuku-ast/utils`      | node utilities such as `nameOf`         |
+| `yuku-ast/identifier` | identifier and reserved-word validators |
 
 ```ts
 import { parse } from "yuku-parser";
@@ -25,10 +25,8 @@ if (is.VariableDeclaration(decl)) {
 ## Install
 
 ```sh
-bun add yuku-ast yuku-parser
+bun add yuku-ast
 ```
-
-`yuku-parser` is a peer dependency.
 
 ## Type guards (`is`)
 
@@ -89,9 +87,7 @@ import { b } from "yuku-ast";
 b.identifier("x");
 b.callExpression(b.identifier("f"), [b.numericLiteral(1)]);
 b.arrowFunctionExpression([b.identifier("a")], b.identifier("a"));
-b.variableDeclaration("const", [
-  b.variableDeclarator(b.identifier("x"), b.numericLiteral(0)),
-]);
+b.variableDeclaration("const", [b.variableDeclarator(b.identifier("x"), b.numericLiteral(0))]);
 ```
 
 When you assign a synthetic node in place of an existing one, copy the original's
@@ -108,9 +104,7 @@ import { print } from "yuku-codegen";
 import { b } from "yuku-ast";
 
 const program = b.program([
-  b.variableDeclaration("const", [
-    b.variableDeclarator(b.identifier("x"), b.numericLiteral(42)),
-  ]),
+  b.variableDeclaration("const", [b.variableDeclarator(b.identifier("x"), b.numericLiteral(42))]),
   b.expressionStatement(
     b.callExpression(b.memberExpression(b.identifier("console"), b.identifier("log")), [
       b.identifier("x"),

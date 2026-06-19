@@ -11,7 +11,7 @@ import type {
   RegExpLiteral,
   StaticMemberExpression,
   StringLiteral,
-} from "yuku-parser";
+} from "@yuku-toolchain/types";
 import { ALIAS_GROUPS, type AliasMap, type AliasName } from "./aliases";
 import { NODE_TYPES } from "./node-types";
 import type { NodeOfType, NodeType } from "./types";

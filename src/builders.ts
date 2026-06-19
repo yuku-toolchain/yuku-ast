@@ -1,4 +1,4 @@
-import type * as t from "yuku-parser";
+import type * as t from "@yuku-toolchain/types";
 
 const span = { start: 0, end: 0 };
 

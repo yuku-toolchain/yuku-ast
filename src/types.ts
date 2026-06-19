@@ -1,4 +1,4 @@
-import type { Node } from "yuku-parser";
+import type { Node } from "@yuku-toolchain/types";
 
 /** Discriminant `type` string of every AST node. */
 export type NodeType = Node["type"];

@@ -1,4 +1,4 @@
-import type { Node } from "yuku-parser";
+import type { Node } from "@yuku-toolchain/types";
 
 type MaybeNode = Node | null | undefined;
 

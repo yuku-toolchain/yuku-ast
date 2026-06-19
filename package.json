@@ -39,6 +39,9 @@
     "format": "oxfmt",
     "release": "bumpp -r --commit 'npm %s' --push --tag"
   },
+  "dependencies": {
+    "@yuku-toolchain/types": "0.5.37"
+  },
   "devDependencies": {
     "@types/bun": "latest",
     "bumpp": "^11.1.0",
@@ -46,10 +49,7 @@
     "oxlint": "^1.66.0",
     "tsdown": "^0.22.0",
     "typescript": "^6.0.3",
-    "yuku-codegen": "^0.5.18",
-    "yuku-parser": "^0.5.20"
-  },
-  "peerDependencies": {
-    "yuku-parser": ">=0.5.20"
+    "yuku-codegen": "^0.5.39",
+    "yuku-parser": "^0.5.39"
   }
 }
